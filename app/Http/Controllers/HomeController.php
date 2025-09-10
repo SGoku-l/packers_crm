@@ -13,4 +13,12 @@ class HomeController extends Controller
     public function register(){
         return view('admin.register');
     }
+
+    public function showLogin()  {
+        return view('admin.login');
+    }
+
+    public function dashboard(){
+        return view('admin.pages-starter');
+    }
 }

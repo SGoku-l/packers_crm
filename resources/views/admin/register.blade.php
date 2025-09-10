@@ -110,14 +110,14 @@
         font-size: 15px;
       }
     }
-  </style>
+</style>
 
 </head>
 <body>
   <div class="form-box">
     <h2>Register</h2>
 <form id="registerForm">   
-
+    @csrf
     <div class="form-group">
       <input type="text" placeholder="Enter Name" id="name">
     </div>
@@ -180,7 +180,7 @@
             let result = await response.json(); 
             let messageBox = document.getElementById("registermessage");
 
-            if (response.ok) { 
+            if (result.ok) { 
                 messageBox.textContent = result.message; 
                 messageBox.className = "message success";
 
@@ -194,7 +194,8 @@
                     messageBox.textContent = errors; 
                 } else { 
                     messageBox.textContent = result.message || "Something went wrong!"; 
-                } messageBox.className = "message error"; 
+                } 
+                messageBox.className = "message error"; 
             } 
         } catch (error) { 
             document.getElementById("registermessage").textContent = "Error: " + error.message; 

@@ -48,6 +48,10 @@ class User extends Authenticatable
     public function setNameAttribute($value)  {
 
         $this->attributes['name'] = ucfirst($value);
-        
+
     }
+
+    protected $casts = [
+    'role_id' => 'integer',
+    ];
 }

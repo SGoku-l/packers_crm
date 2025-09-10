@@ -145,6 +145,7 @@
 
             <button type="submit">Login</button>
         </form>
+        <div id="loginmessage"></div>
     </div>
 
     <script>
@@ -158,6 +159,46 @@
                 icon.textContent = "🙈";
             }
         }
+
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+            };
+
+            const api_url = "{{ config('app.api_url') }}";
+
+            try {
+                let response = await fetch(`${api_url}/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                let result = await response.json();
+                let messageBox = document.getElementById('loginmessage');
+
+                if (response.ok) {
+                    messageBox.textContent = result.message;
+                    messageBox.className = "message success";
+                    setTimeout(() => {
+                        window.location.href = result.redirect_url;
+                    }, 1200);
+                } else {
+                    messageBox.textContent = result.message || "Invalid credentials";
+                    messageBox.className = "message error";
+                }
+            } catch (error) {
+                document.getElementById("loginmessage").textContent = "Error: " + error.message;
+                document.getElementById("loginmessage").className = "message error";
+            }
+        });
 
     </script>
 
