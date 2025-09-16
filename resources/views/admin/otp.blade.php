@@ -52,48 +52,13 @@
   <div class="form-box">
     <h2>Verify OTP</h2>
 
-    <form id="otpForm">
-      <input type="hidden" id="phone" value="{{ request('phone') }}">
-      <input type="text" id="otp" placeholder="Enter 6-digit OTP">
+    <form id="otpForm" method="post" action="{{ url('admin/verify-otp') }}">
+      @csrf
+      <input id="email" name="email" readonly style="background:#f8f9fa;" type="hidden" value="{{ @$user }}">
+      <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP">
       <button type="submit">Verify OTP</button>
     </form>
-
     <div id="otpMessage" class="message"></div>
   </div>
-
-  <script>
-    document.getElementById("otpForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const api_url = "{{ config('app.api_url') }}"
-
-      const phone = document.getElementById("phone").value;
-      const otp = document.getElementById("otp").value;
-
-      let response = await fetch(`${api_url}/verify-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        },
-        body: JSON.stringify({ phone, otp })
-      });
-
-      let result = await response.json();
-      let msgBox = document.getElementById("otpMessage");
-
-      if (response.ok) {
-        msgBox.textContent = result.message;
-        msgBox.className = "message success";
-        setTimeout(() => {
-          window.location.href = "{{ url('/index') }}";
-        }, 1500);
-      } else {
-        msgBox.textContent = result.message;
-        msgBox.className = "message error";
-      }
-    });
-  </script>
 </body>
 </html>

@@ -10,6 +10,7 @@
                 <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
                 <meta content="" name="author" />
                 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                <meta name="csrf-token" content="{{ csrf_token() }}">
 
                 <!-- App favicon -->
                 <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
@@ -273,7 +274,12 @@
                                 <a class="dropdown-item" href="pages-profile.html"><i class="las la-lock fs-18 me-1 align-text-bottom"></i> Security</a>
                                 <a class="dropdown-item" href="pages-faq.html"><i class="las la-question-circle fs-18 me-1 align-text-bottom"></i> Help Center</a>                       
                                 <div class="dropdown-divider mb-0"></div>
-                                <a class="dropdown-item text-danger" href="auth-login.html"><i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Logout</a>
+
+                                <form id="logoutForm" method="post" action="{{ url('admin/logout') }}">
+                                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
+                                        <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Logout
+                                    </a>
+                                </form>
                             </div>
                         </li>
                     </ul><!--end topbar-nav-->
@@ -282,3 +288,9 @@
             </div>
         </div>
         <!-- Top Bar End -->
+     
+        <!-- <script>
+            const login_url = '{{ url('login') }}';
+            const api_url = "{{ config('app.api_url') }}";
+        </script>
+        <script src="{{ asset('api-js/logout.js') }}"></script> -->

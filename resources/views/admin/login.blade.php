@@ -1,206 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
     <title>Login Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="Login Page" name="description" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
 
+    <!-- App css -->
+    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
     <style>
-        /* ====== Background ====== */
-        body {
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* ====== Glassy Form Box ====== */
-        .form-box {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.2);
-            width: 420px;
-            max-width: 95%;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-        }
-
-        .form-box h2 {
-            margin-bottom: 25px;
-            font-size: 26px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        /* ====== Inputs ====== */
-        .form-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 16px 50px 16px 16px;
-            border: none;
-            border-radius: 12px;
-            outline: none;
-            font-size: 16px;
-            color: #333;
-            background: rgba(255, 255, 255, 0.9);
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            background: #fff;
-            box-shadow: 0px 0px 10px rgba(74, 144, 226, 0.5);
-        }
-
-        /* ====== Password Toggle Icon ====== */
         .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 16px;
-            transform: translateY(-50%);
             cursor: pointer;
             user-select: none;
+            padding: 0 10px;
             font-size: 18px;
-        }
-
-        /* ====== Button ====== */
-        button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4a90e2, #357ABD);
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, #357ABD, #2b5aa3);
-        }
-
-        /* ====== Responsive (Mobile) ====== */
-        @media (max-width: 480px) {
-            .form-box {
-                padding: 25px;
-                border-radius: 15px;
-            }
-
-            .form-box h2 {
-                font-size: 22px;
-            }
-
-            .form-group input {
-                padding: 14px 45px 14px 14px;
-                font-size: 15px;
-            }
-
-            button {
-                padding: 14px;
-                font-size: 15px;
-            }
         }
     </style>
 </head>
 
-<body>
+<body class="bg-light">
 
-    <div class="form-box">
-        <h2>Login to Your Account</h2>
+    <div class="container-xxl">
+        <div class="row vh-100 justify-content-center align-items-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow rounded-3">
+                    <div class="card-body p-0 bg-dark rounded-top text-center">
+                        <div class="p-4">
+                            <a href="#" class="logo logo-admin">
+                                <img src="{{ asset('assets/images/logo-sm.png') }}" height="50" alt="logo"
+                                    class="auth-logo">
+                            </a>
+                            <h4 class="mt-3 mb-1 fw-semibold text-white">Welcome Back</h4>
+                            <p class="text-muted mb-0">Sign in to continue</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
 
-        @if ($errors->any())
-            <div style="color: #ffdddd; background: rgba(255, 0, 0, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
+                        <!-- ✅ Single Form -->
+                        <form id="loginForm" method="post" action="{{ url('admin/login') }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="Enter your email">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="Enter password">
+                                    <span class="input-group-text toggle-password" onclick="togglePassword('password', this)">🙈</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                                </div>
+                                <a href="auth-recover-pw.html" class="text-muted small">Forgot password?</a>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Log In <i
+                                        class="fas fa-sign-in-alt ms-1"></i></button>
+                            </div>
+                        </form>
+
+                        <!-- Messages -->
+                        <div id="loginmessage" class="mt-3 text-center"></div>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted">Don't have an account?
+                                <a href="auth-register.html" class="text-primary ms-1">Register</a>
+                            </p>
+                            <h6 class="px-3 d-inline-block">Or Login With</h6>
+                        </div>
+                        <div class="d-flex justify-content-center gap-2 mt-2">
+                            <a href="#"
+                                class="d-flex justify-content-center align-items-center thumb-md bg-primary-subtle text-primary rounded-circle">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="#"
+                                class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#"
+                                class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
+                                <i class="fab fa-google"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        @endif
-
-        <form id="loginForm">
-            @csrf
-            <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required id='email'>
-            </div>
-
-            <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required id="password">
-                <span class="toggle-password" onclick="togglePassword('password', this)">🙈</span>
-            </div>
-
-            <button type="submit">Login</button>
-        </form>
-        <div id="loginmessage"></div>
+        </div>
     </div>
-
-    <script>
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.textContent = "👁️";
-            } else {
-                input.type = "password";
-                icon.textContent = "🙈";
-            }
-        }
-
-        document.getElementById("loginForm").addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            let formData = {
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-            };
-
-            const api_url = "{{ config('app.api_url') }}";
-
-            try {
-                let response = await fetch(`${api_url}/login`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                let result = await response.json();
-                let messageBox = document.getElementById('loginmessage');
-
-                if (response.ok) {
-                    messageBox.textContent = result.message;
-                    messageBox.className = "message success";
-                    setTimeout(() => {
-                        window.location.href = result.redirect_url;
-                    }, 1200);
-                } else {
-                    messageBox.textContent = result.message || "Invalid credentials";
-                    messageBox.className = "message error";
-                }
-            } catch (error) {
-                document.getElementById("loginmessage").textContent = "Error: " + error.message;
-                document.getElementById("loginmessage").className = "message error";
-            }
-        });
-
-    </script>
-
+    
+    <!-- <script>const api_url = "{{ config('app.api_url') }}";</script>
+    <script src="{{ asset('api-js/login.js') }}"></script> -->
 </body>
 </html>

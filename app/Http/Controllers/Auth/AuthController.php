@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginLog;
 use App\Models\Otp;
 use Hash;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Jenssegers\Agent\Agent;
 
 class AuthController extends Controller
 {
@@ -24,19 +27,18 @@ class AuthController extends Controller
             // 'role_id' => 'required|in:1,2,3' // 1=admin,2=staff,3=student
         ]);
         
-        $user = User::create(attributes: [
+        $user = User::create( [
             'name' => $validation['name'],
             'email' => $validation['email'],
             'phone' => $validation['phone'],
-            'password' => bcrypt($validation['password']),
-            'password_confirmation' => 'match:password'
+            'password' => bcrypt($validation['password'])
             // 'role_id' => $validation['role_id'],
         ]);
          
 
         $otp = rand(100000, 999999);
         $storeotp = Otp::create([
-            'uid' => $user->id,
+            'user_id' => $user->id,
             'otp_code' => $otp,
             'otp_expires_at' => now()->addMinutes(10)
         ]);
@@ -55,39 +57,53 @@ class AuthController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required',
+            'email' => 'required|email',
             'otp'   => 'required|digits:6',
         ]);
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        $otp = Otp::where('uid', $user->id)->latest()->first();
+        
+        $otp = Otp::where('user_id', $user->id)->latest()->first();
 
         if (!$otp || $otp->otp_code !== $request->otp || now()->greaterThan($otp->otp_expires_at)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid or expired OTP'
-            ], 422);
+           return redirect('admin/login');
         }
 
         $user->is_phone_verified = true;
-        $user->save();
 
-        $otp->delete(); 
-
-        return response()->json([
-            'status' => true,
-            'message' => 'OTP verified successfully'
+        LoginLog::where('user_id',$user->id)->where('login_otp_verifi_status','pending')->latest()->first()?->update([
+            'login_otp_verifi_status' => 'success',
+            'logged_in_at' => now(),
         ]);
-}
+       
+        $user->save();
+        Auth::login($user);
+        $user->tokens()->delete();
 
+        $user->createToken('auth_token')->plainTextToken;
+        $user->login_time = now();
+        $user->current_session_id = session()->getId();
+        $user->session_expires_at = now()->addDays(7);
+        $user->save();
+        
+        $request->session()->put('rememberToken', session()->getId());
+        $request->session()->put('user_id', $user->id);
+        $request->session()->put('login_time', now());
+        $request->session()->put('session_expires_at', now()->addWeek());
+
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => 'OTP verified successfully,Login Successfully',
+        //     'redirect_url' => 'index',
+        //     'sessionToken' => $token,
+        //     'tokenType' => 'bearer',
+        //     'user' => $user->id,
+        //     'session_expires_at' => $user->session_expires_at,
+        // ]);
+
+        return redirect('admin/dashboard');
+    }
 
     public function login(Request $request)
     {
@@ -102,29 +118,41 @@ class AuthController extends Controller
                 'message' => 'Invalid credentials'
             ], 401);
         }
-
+        $agent = new Agent();
+        $mail = $request->email;
         $user = Auth::user();
 
-        $user->login_time = now();
-        $user->save();
+         LoginLog::create([
+            'user_id' => $user->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+            'device_name' => $agent->device() ?: 'unknown',
+            'login_otp_verifi_status' => 'pending'
+         ]);
 
-        $request->session()->regenerate();
+        // $user->tokens()->delete();
 
-        cookie::queue('login_time', now()->toDateTimeString(), 60*24);
+        // $token = $user->createToken('auth_token')->plainTextToken;
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
-            'redirect_url' => match($user->role_id) {
-                1 => '/admin/dashboard',
-                2 => '/staff/dashboard',
-                3 => '/student/dashboard',
-                default => '/home',
-            }
+        $otp = rand(100000,999999);
+        $storeotp = Otp::create([
+            'user_id' => $user->id,
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
         ]);
+        $storeotp->save();
+
+        Mail::to($user->email)->send(new \App\Mail\OtpMail($otp));
+
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => 'OTP Send SuccessFully',
+        // ]);
+        // Auth::logout();
+        // session(['otp_user_id' => $user->id]);
+
+        return view('admin.otp',['user'=>$mail]);
+        
     }
 
     public function logout(Request $request)
@@ -138,16 +166,26 @@ class AuthController extends Controller
             $user->tokens()->delete();
         }
 
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if(Auth::check()){
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        $token = $request->user()?->currentAccessToken();
+        if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            $token->delete();
+        }
+
 
         cookie()->queue(cookie()->forget('login_time'));
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Logout successful'
-        ]);
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => 'Logout successful'
+        // ]);
+
+        return redirect('admin/login');
     }
 
     public function forgotPassword(Request $request)

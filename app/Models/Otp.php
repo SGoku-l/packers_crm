@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Otp extends Model
 {
     protected $fillable = [
-        'uid',
+        'user_id',
         'otp_code',
         'otp_expires_at'
     ];

@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureFrontendRequestsAreStateful::class,  // Sanctum session + token auth
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
-
+        $middleware->append(\App\Http\Middleware\NoCache::class);
         // You can also register global middleware here if needed:
         // $middleware->append(\App\Http\Middleware\TrustProxies::class);
     })
@@ -26,4 +26,3 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->create();
-

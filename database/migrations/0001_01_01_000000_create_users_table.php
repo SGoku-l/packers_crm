@@ -19,9 +19,11 @@ return new class extends Migration
             $table->boolean('is_phone_verified')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role_id')->default(3);
+            $table->unsignedTinyInteger('role_id')->default(3);
             $table->timestamp('login_time')->nullable();
             $table->timestamp('logout_time')->nullable();
+            $table->string('current_session_id')->nullable();
+            $table->timestamp('session_expires_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
