@@ -1,64 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify OTP</title>
+  <meta charset="utf-8" />
+  <title>Login Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta content="Login Page" name="description" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- App favicon -->
+  <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
+
+  <!-- App css -->
+  <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+  <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+  <link href="{{ asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
   <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .form-box {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 30px;
-      border-radius: 15px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.2);
-      width: 350px;
-      text-align: center;
-    }
-    .form-box h2 { color: #fff; margin-bottom: 20px; }
-    input {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #4a90e2, #357ABD);
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
+    .toggle-password {
       cursor: pointer;
+      user-select: none;
+      padding: 0 10px;
+      font-size: 18px;
     }
-    .message { margin-top: 10px; font-size: 14px; }
-    .success { color: green; }
-    .error { color: red; }
   </style>
 </head>
-<body>
-  <div class="form-box">
-    <h2>Verify OTP</h2>
 
-    <form id="otpForm" method="post" action="{{ url('admin/verify-otp') }}">
-      @csrf
-      <input id="email" name="email" readonly style="background:#f8f9fa;" type="hidden" value="{{ @$user }}">
-      <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP">
-      <button type="submit">Verify OTP</button>
-    </form>
-    <div id="otpMessage" class="message"></div>
-  </div>
+<body class="bg-light">
+
+  <div class="container-xxl">
+    <div class="row vh-100 justify-content-center align-items-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow rounded-3">
+          <div class="card-body p-0 bg-dark rounded-top text-center">
+            <div class="p-4">
+              <a href="#" class="logo logo-admin">
+                <img src="{{ asset('assets/images/logo-sm.png') }}" height="50" alt="logo"
+                  class="auth-logo">
+              </a>
+              <h4 class="mt-3 mb-1 fw-semibold text-white">Welcome Back</h4>
+              <p class="text-muted mb-0">Sign in to continue</p>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <!-- ✅ Single Form -->
+            <form id="loginForm" method="post" action="{{ url('admin/verify-otp') }}">
+              @csrf
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" disabled
+                  value="{{ @$user }}" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">OTP</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="" name="otp">
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <button class="btn btn-primary" type="submit">verifyOtp<i
+                    class="fas fa-sign-in-alt ms-1"></i></button>
+              </div>
+
+              <div class="d-flex justify-content-center gap-2 mt-2">
+                <a href="#"
+                  class="d-flex justify-content-center align-items-center thumb-md bg-primary-subtle text-primary rounded-circle">
+                  <i class="fab fa-facebook"></i>
+                </a>
+                <a href="#"
+                  class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle">
+                  <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#"
+                  class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
+                  <i class="fab fa-google"></i>
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
+
 </html>
