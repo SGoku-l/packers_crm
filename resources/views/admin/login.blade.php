@@ -1,3 +1,5 @@
+@include('partials.toasts')
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
 
@@ -103,6 +105,19 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.textContent = "👁️";
+            } else {
+                input.type = "password";
+                icon.textContent = "🙈";
+            }
+        }
+    </script>
     
     <!-- <script>const api_url = "{{ config('app.api_url') }}";</script>
     <script src="{{ asset('api-js/login.js') }}"></script> -->

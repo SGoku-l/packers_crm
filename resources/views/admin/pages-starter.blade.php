@@ -1,6 +1,7 @@
 @include('admin.header')
 @include('admin.rightsidebar')
 @include('admin.leftsidebar')
+@include('partials.toasts')
 
         <div class="page-wrapper">
 

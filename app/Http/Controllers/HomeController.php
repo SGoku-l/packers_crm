@@ -19,6 +19,10 @@ class HomeController extends Controller
     }
 
     public function dashboard(){
-        return view('admin.pages-starter');
+        return view('admin.pages-starter'); 
+    }
+
+    public function adminall(){
+        return view('admin.admin-all');
     }
 }
