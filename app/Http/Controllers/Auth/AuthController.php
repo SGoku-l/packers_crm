@@ -63,7 +63,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        
         $otp = Otp::where('user_id', $user->id)->latest()->first();
 
         if (!$otp || $otp->otp_code !== $request->otp || now()->greaterThan($otp->otp_expires_at)) {
@@ -102,25 +101,32 @@ class AuthController extends Controller
         //     'session_expires_at' => $user->session_expires_at,
         // ]);
 
-        return redirect('admin/dashboard');
+        return redirect('admin/dashboard')->with('toasts', [
+        ['type' => 'success', 'message' => 'Login Successfully', 'time' => now()->format('H:i')]]);
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials'
-            ], 401);
-        }
+        // if (!Auth::attempt($credentials)) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Invalid credentials'
+        //     ], 401);
+        // }
+
         $agent = new Agent();
         $mail = $request->email;
-        $user = Auth::user();
+        
+        $user = User::where('email',$mail)->first();
+
+        if(!$user || !Hash::check($request->password,$user->password)){
+            return back()->withErrors(['email'=>'Invalid Credentials']);
+        }
 
          LoginLog::create([
             'user_id' => $user->id,
@@ -144,14 +150,11 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new \App\Mail\OtpMail($otp));
 
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => 'OTP Send SuccessFully',
-        // ]);
-        // Auth::logout();
-        // session(['otp_user_id' => $user->id]);
-
-        return view('admin.otp',['user'=>$mail]);
+        return view('admin.otp',['user'=>$mail,
+            'toasts' => [
+            ['type' => 'success', 'message' => 'OTP Sent Successfully', 'time' => now()->format('H:i')]
+            ]
+        ]);
         
     }
 
@@ -177,15 +180,10 @@ class AuthController extends Controller
             $token->delete();
         }
 
-
         cookie()->queue(cookie()->forget('login_time'));
 
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => 'Logout successful'
-        // ]);
-
-        return redirect('admin/login');
+        return redirect('admin/login')->with('toasts', [
+        ['type' => 'success', 'message' => 'Logout Successfully', 'time' => now()->format('H:i')]]);;
     }
 
     public function forgotPassword(Request $request)

@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\NoCache::class);
         // You can also register global middleware here if needed:
         // $middleware->append(\App\Http\Middleware\TrustProxies::class);
+        $middleware->alias([
+        'nocache' => \App\Http\Middleware\NoCache::class,
+       ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

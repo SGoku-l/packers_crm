@@ -15,7 +15,7 @@ class NoCache
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next,...$guards): Response
     {
             $response = $next($request);
             $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -37,6 +37,17 @@ class NoCache
                   }
               }
           }
+
+          // foreach($guards as $guard){
+          //   if(Auth::guard($guard)->check()){
+          //     return redirect('/admin/dashboard');
+          //   }
+          // }
+          
+          if (Auth::check() && $request->is('admin/login', 'admin/register', 'admin/otp')) {
+            return redirect('/admin/dashboard');
+          }
+
           return $response;
     }
 }

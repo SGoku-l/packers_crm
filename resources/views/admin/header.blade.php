@@ -14,17 +14,16 @@
 
                 <!-- App favicon -->
                 <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
-
-       
+  
          <!-- App css -->
          <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" type="text/css">
          <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
-         <link href="{{ asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
+         <link href="{{ asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />  
 
-         
+
+          <link href="{{ asset('assets/libs/simple-datatables/style.css') }}" rel="stylesheet" type="text/css" />
 
     </head>
-
     
     <!-- Top Bar Start -->
     <body>
@@ -275,10 +274,11 @@
                                 <a class="dropdown-item" href="pages-faq.html"><i class="las la-question-circle fs-18 me-1 align-text-bottom"></i> Help Center</a>                       
                                 <div class="dropdown-divider mb-0"></div>
 
-                                <form id="logoutForm" method="post" action="{{ url('admin/logout') }}">
-                                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
+                                <form method="POST" action="{{ url('admin/logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger" style="border:none; background:none;">
                                         <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Logout
-                                    </a>
+                                    </button>
                                 </form>
                             </div>
                         </li>
@@ -288,7 +288,13 @@
             </div>
         </div>
         <!-- Top Bar End -->
-     
+         @if(session('success'))
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    showToast("{{ session('success') }}", "success");
+                });
+            </script>
+        @endif
         <!-- <script>
             const login_url = '{{ url('login') }}';
             const api_url = "{{ config('app.api_url') }}";

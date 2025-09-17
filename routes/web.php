@@ -5,29 +5,38 @@ use App\Http\Controllers\HomeController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Middleware\NoCache;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 
-Route::post('admin/register', [AuthController::class, 'register']);
-Route::post('admin/verify-otp', [AuthController::class, 'verifyOtp']);
-Route::post('admin/login', [AuthController::class, 'login']);
+//getting views without auth verifi
+Route::prefix('admin')->middleware(['nocache'])->controller(HomeController::class)->group(function(){
+      Route::get('login',  'showLogin')->name('login');
+      Route::get('otp','otp');
+      Route::get('register','register');
+
+});
+
+//Post Controller
+Route::prefix('admin')->controller(AuthController::class)->group(function(){
+    Route::post('register',  'register');
+    Route::post('verify-otp', 'verifyOtp');
+    Route::post('login', 'login');
+});
+
+//getting view With Auth Verifi
+Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
+    Route::get('adminall','adminall')->name('admin.all');
+    Route::get('dashboard','dashboard');
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AuthController::class, 'logout']);
 });
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('admin.login');
 });
-
-Route::get('admin/dashboard',[HomeController::class,'dashboard'])->middleware(['auth','verified']);
-
-Route::get('register',[HomeController::class,'register']);
-
-Route::get('admin/otp',[HomeController::class,'otp']);
-
-Route::get('admin/login', [HomeController::class, 'showLogin'])->name('login');
-
