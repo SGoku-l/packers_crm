@@ -25,4 +25,8 @@ class HomeController extends Controller
     public function adminall(){
         return view('admin.admin-all');
     }
+
+    public function adddepartment(){
+        return view('admin.department');
+    }
 }

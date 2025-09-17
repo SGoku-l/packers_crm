@@ -33,11 +33,21 @@
                             </li><!--end nav-item-->
 
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.all') }}" role="button" 
-                                    aria-expanded="false" aria-controls="sidebarAnalytics"> 
-                                     <i class="fab fa-earlybirds menu-icon"></i>                                    
+                                <a class="nav-link" href="#sidebarEcommerce" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="sidebarEcommerce"> 
+                                    <i class="fab fa-earlybirds menu-icon"></i>                                        
                                     <span>Admin</span>
                                 </a>
+                                <div class="collapse " id="sidebarEcommerce">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('admin.all') }}">Admin Data</a>
+                                        </li><!--end nav-item-->
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('add.dep') }}">Department</a>
+                                        </li><!--end nav-item-->
+                                    </ul><!--end nav-->
+                                </div>
                             </li>    
                             <li class="nav-item">
                                 <form id="logoutForm" method="POST" action="{{ url('admin/logout') }}">
