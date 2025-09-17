@@ -23,10 +23,10 @@ Route::prefix('admin')->middleware(['nocache'])->controller(HomeController::clas
 //Post Controller
 Route::prefix('admin')->controller(AuthController::class)->group(function(){
     Route::post('register',  'register');
-    Route::post('verify-otp', 'verifyOtp');
+    Route::post('verify-otp', 'verifyOtp')->name('admin.verifyOtp');
     Route::post('login', 'login');
 });
-
+// dd(Auth::check(), Auth::user(), session()->all());
 //getting view With Auth Verifi
 Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
     Route::get('adminall','adminall')->name('admin.all');

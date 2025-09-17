@@ -7,47 +7,44 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-
 class NoCache
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next,...$guards): Response
+    public function handle(Request $request, Closure $next, ...$guards): Response
     {
-            $response = $next($request);
-            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            $response->headers->set('Pragma', 'no-cache');
-            $response->headers->set('Expires', '0');
+        $response = $next($request);
 
-            if ($request->hasSession()) {
-              if (Auth::check()) {
-                  $user = Auth::user();
+        // Prevent browser caching
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
 
-                  // Example: if you store session_id in DB for single-login enforcement
-                  if ($user->session_id && $request->session()->getId() !== $user->session_id) {
-                      Auth::logout();
-                      $request->session()->invalidate();
-                      $request->session()->regenerateToken();
+        if ($request->hasSession() && Auth::check()) {
+            $user = Auth::user();
 
-                      return redirect('/login')
-                          ->with('error', 'You have been logged out because another login was detected.');
-                  }
-              }
-          }
+            // If already logged in and visiting login/register, redirect
+            if ($request->is('admin/login') || $request->is('admin/register')) {
+                return redirect('admin/dashboard');
+            }
 
-          // foreach($guards as $guard){
-          //   if(Auth::guard($guard)->check()){
-          //     return redirect('/admin/dashboard');
-          //   }
-          // }
-          
-          if (Auth::check() && $request->is('admin/login', 'admin/register', 'admin/otp')) {
-            return redirect('/admin/dashboard');
-          }
+            // Enforce single session (only on protected routes, not login/register)
+            if (! $request->is('admin/login') && ! $request->is('admin/register')) {
+                if (
+                    $user->current_session_id &&
+                    $request->session()->getId() !== $user->current_session_id
+                ) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
 
-          return $response;
+                    return redirect('admin/login')
+                        ->with('error', 'You have been logged out because another login was detected.');
+                }
+            }
+        }
+
+        return $response;
     }
 }

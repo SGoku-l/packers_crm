@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Jenssegers\Agent\Agent;
+use App\Models\Settings;
 
 class AuthController extends Controller
 {
@@ -78,8 +79,10 @@ class AuthController extends Controller
        
         $user->save();
         Auth::login($user);
+        $request->session()->regenerate();
         $user->tokens()->delete();
-
+        //it will show the dump
+        // dd(Auth::check(), Auth::user());
         $user->createToken('auth_token')->plainTextToken;
         $user->login_time = now();
         $user->current_session_id = session()->getId();
@@ -105,57 +108,81 @@ class AuthController extends Controller
         ['type' => 'success', 'message' => 'Login Successfully', 'time' => now()->format('H:i')]]);
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
-         $request->validate([
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // if (!Auth::attempt($credentials)) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Invalid credentials'
-        //     ], 401);
-        // }
-
         $agent = new Agent();
         $mail = $request->email;
         
-        $user = User::where('email',$mail)->first();
+        $user = User::where('email', $mail)->first();
 
-        if(!$user || !Hash::check($request->password,$user->password)){
-            return back()->withErrors(['email'=>'Invalid Credentials']);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['email' => 'Invalid Credentials']);
         }
 
-         LoginLog::create([
+        // Log login attempt
+        LoginLog::create([
             'user_id' => $user->id,
             'ip_address' => $request->ip(),
             'user_agent' => $request->header('User-Agent'),
             'device_name' => $agent->device() ?: 'unknown',
             'login_otp_verifi_status' => 'pending'
-         ]);
-
-        // $user->tokens()->delete();
-
-        // $token = $user->createToken('auth_token')->plainTextToken;
-
-        $otp = rand(100000,999999);
-        $storeotp = Otp::create([
-            'user_id' => $user->id,
-            'otp_code' => $otp,
-            'otp_expires_at' => now()->addMinutes(10),
         ]);
-        $storeotp->save();
 
-        Mail::to($user->email)->send(new \App\Mail\OtpMail($otp));
+        //Check OTP setting
+        $otpSetting = Settings::where('setting_name', 'otp')->where('status', 1)->first();
 
-        return view('admin.otp',['user'=>$mail,
-            'toasts' => [
-            ['type' => 'success', 'message' => 'OTP Sent Successfully', 'time' => now()->format('H:i')]
-            ]
-        ]);
-        
+        if ($otpSetting) {
+            // Generate OTP
+            $otp = rand(100000, 999999);
+            $storeotp = Otp::create([
+                'user_id' => $user->id,
+                'otp_code' => $otp,
+                'otp_expires_at' => now()->addMinutes(10),
+            ]);
+            $storeotp->save();
+
+            // Send OTP mail
+            Mail::to($user->email)->send(new \App\Mail\OtpMail($otp));
+
+            return view('admin.otp', [
+                'user' => $mail,
+                'toasts' => [
+                    ['type' => 'success', 'message' => 'OTP Sent Successfully', 'time' => now()->format('H:i')]
+                ]
+            ]);
+        } else {
+            //direct login
+            Auth::login($user);
+            $request->session()->regenerate();
+            //it will make dump
+            // dd(Auth::check(), Auth::user());
+            // dd(Auth::check(), Auth::user(), session()->all());
+            LoginLog::where('user_id',$user->id)->where('login_otp_verifi_status','pending')->latest()->first()?->update([
+                'login_otp_verifi_status' => 'success',
+                'logged_in_at' => now(),
+            ]);
+            // $user->tokens()->delete();
+            // $user->createToken('auth_token')->plainTextToken;
+
+            $user->login_time = now();
+            $user->current_session_id = $request->session()->getId();
+            $user->session_expires_at = now()->addDays(7);
+            $user->save();
+
+            // $request->session()->put('rememberToken', session()->getId());
+            $request->session()->put('user_id', $user->id);
+            $request->session()->put('login_time', now());
+            $request->session()->put('session_expires_at', now()->addWeek());
+
+            return redirect('admin/dashboard')->with('toasts', [
+                ['type' => 'success', 'message' => 'Login Successful (No OTP Required)', 'time' => now()->format('H:i')]
+            ]);
+        }
     }
 
     public function logout(Request $request)

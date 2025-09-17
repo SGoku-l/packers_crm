@@ -27,6 +27,7 @@
   </style>
 </head>
 
+<<<<<<< HEAD
 <body class="bg-light">
 
   <div class="container-xxl">
@@ -84,6 +85,16 @@
         </div>
       </div>
     </div>
+=======
+    <form id="otpForm" method="post" action="{{ route('admin.verifyOtp') }}">
+      @csrf
+      <input id="email" name="email" readonly style="background:#f8f9fa;" type="hidden" value="{{ @$user }}">
+      <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP">
+      <button type="submit">Verify OTP</button>
+    </form>
+    <div id="otpMessage" class="message"></div>
+  </div>
+>>>>>>> c0e4af3 (login switch changed /Gokul)
 </body>
 
 </html>
