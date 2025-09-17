@@ -1,3 +1,5 @@
+@include('partials.toasts')
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
 
@@ -24,9 +26,9 @@
         }
     </style>
 </head>
-@include('partials.toasts')
 
 <body class="bg-light">
+
     <div class="container-xxl">
         <div class="row vh-100 justify-content-center align-items-center">
             <div class="col-md-6 col-lg-4">
@@ -104,8 +106,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
     <script>
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
@@ -118,9 +118,8 @@
             }
         }
     </script>
-
+    
     <!-- <script>const api_url = "{{ config('app.api_url') }}";</script>
     <script src="{{ asset('api-js/login.js') }}"></script> -->
 </body>
-
 </html>
