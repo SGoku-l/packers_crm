@@ -26,75 +26,7 @@
     }
   </style>
 </head>
-
-<<<<<<< HEAD
-<body class="bg-light">
-
-  <div class="container-xxl">
-    <div class="row vh-100 justify-content-center align-items-center">
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow rounded-3">
-          <div class="card-body p-0 bg-dark rounded-top text-center">
-            <div class="p-4">
-              <a href="#" class="logo logo-admin">
-                <img src="{{ asset('assets/images/logo-sm.png') }}" height="50" alt="logo"
-                  class="auth-logo">
-              </a>
-              <h4 class="mt-3 mb-1 fw-semibold text-white">Welcome Back</h4>
-              <p class="text-muted mb-0">Sign in to continue</p>
-            </div>
-          </div>
-          <div class="card-body p-4">
-            <!-- ✅ Single Form -->
-            <form id="loginForm" method="post" action="{{ url('admin/verify-otp') }}">
-              @csrf
-              <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" disabled
-                  value="{{ @$user }}" />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">OTP</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="" name="otp">
-                </div>
-              </div>
-
-              <div class="d-grid">
-                <button class="btn btn-primary" type="submit">verifyOtp<i
-                    class="fas fa-sign-in-alt ms-1"></i></button>
-              </div>
-
-              <div class="d-flex justify-content-center gap-2 mt-2">
-                <a href="#"
-                  class="d-flex justify-content-center align-items-center thumb-md bg-primary-subtle text-primary rounded-circle">
-                  <i class="fab fa-facebook"></i>
-                </a>
-                <a href="#"
-                  class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle">
-                  <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#"
-                  class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
-                  <i class="fab fa-google"></i>
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-=======
-    <form id="otpForm" method="post" action="{{ route('admin.verifyOtp') }}">
-      @csrf
-      <input id="email" name="email" readonly style="background:#f8f9fa;" type="hidden" value="{{ @$user }}">
-      <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP">
-      <button type="submit">Verify OTP</button>
-    </form>
-    <div id="otpMessage" class="message"></div>
-  </div>
->>>>>>> c0e4af3 (login switch changed /Gokul)
-</body>
+<body>
+  
 
 </html>
