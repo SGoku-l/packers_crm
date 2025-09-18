@@ -26,7 +26,7 @@ Route::prefix('admin')->controller(AuthController::class)->group(function(){
     Route::post('register',  'register');
     Route::post('verify-otp', 'verifyOtp')->name('admin.verifyOtp');
     Route::post('login', 'login');
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('logout', 'logout');
 });
 // dd(Auth::check(), Auth::user(), session()->all());
 //getting view With Auth Verifi

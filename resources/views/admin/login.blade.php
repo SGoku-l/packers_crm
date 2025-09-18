@@ -119,6 +119,8 @@
         }
     </script>
     
+     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+     <script src="{{ asset('assets/js/app.js') }}"></script>
     <!-- <script>const api_url = "{{ config('app.api_url') }}";</script>
     <script src="{{ asset('api-js/login.js') }}"></script> -->
 </body>
