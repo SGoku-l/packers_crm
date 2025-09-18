@@ -26,18 +26,20 @@ Route::prefix('admin')->controller(AuthController::class)->group(function(){
     Route::post('register',  'register');
     Route::post('verify-otp', 'verifyOtp')->name('admin.verifyOtp');
     Route::post('login', 'login');
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 // dd(Auth::check(), Auth::user(), session()->all());
 //getting view With Auth Verifi
+
 Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
     Route::get('adminall','adminall')->name('admin.all');
     Route::get('dashboard','dashboard');
     Route::get('department-management','adddepartment')->name('add.dep');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('admin/logout', [AuthController::class, 'logout']);
-});
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('admin/logout', [AuthController::class, 'logout']);
+// });
 
 Route::get('/', function () {
     return view('admin.login');

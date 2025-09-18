@@ -53,16 +53,22 @@
                                         </tr>
                                     </thead>
                                     <tbody class="text-center align-middle">
-                                        <tr>
-                                            <td>Admin</td>
-                                            <td>For subadmin</td>
-                                            <td><input type="checkbox" name="view"></td>
-                                            <td><input type="checkbox" name="edit"></td>
-                                            <td><input type="checkbox" name="delete"></td>
-                                            <td><input type="checkbox" name="update"></td>
-                                            <td>855</td>
-                                            <td>2025/09/19</td>
-                                        </tr>
+                                        @foreach ($department as $dep)
+                                        
+                                            <tr>
+                                                <td>{{ $dep->department_name }}</td>
+                                                <td>{{ $dep->remark }}</td>
+                                                @if ($dep->view === 1)
+                                                    <td><input type="checkbox" name="view"></td>
+                                                @endif
+                                                <td><input type="checkbox" name="edit"></td>
+                                                <td><input type="checkbox" name="delete"></td>
+                                                <td><input type="checkbox" name="update"></td>
+                                                <td>855</td>
+                                                <td>2025/09/19</td>
+                                            </tr>
+                                            
+                                        @endforeach 
                                     </tbody>
                                 </table>
 
