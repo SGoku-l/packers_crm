@@ -31,7 +31,7 @@ class HomeController extends Controller
     public function adddepartment(){
 
         $menu = Menu::select('id','menu','submenu')->get()->groupBy('menu');
-        $department = Department::all();
+        $department = Department::with('user')->get();
 
         return view('admin.department',compact('menu','department'));
 
