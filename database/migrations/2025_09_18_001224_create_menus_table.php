@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
+        Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('setting_name');
-            $table->boolean('status')->default(0);
-            $table->foreignId('changed_by')->constrained('users')->onDelete('cascade');
+            $table->string('menu');
+            $table->string('submenu');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        Schema::dropIfExists('menus');
     }
 };

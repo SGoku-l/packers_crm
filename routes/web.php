@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HomeController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,7 @@ Route::prefix('admin')->middleware(['nocache'])->controller(HomeController::clas
       Route::get('login',  'showLogin')->name('login');
       Route::get('otp','otp');
       Route::get('register','register');
-
+      
 });
 
 //Post Controller
@@ -31,6 +32,7 @@ Route::prefix('admin')->controller(AuthController::class)->group(function(){
 Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
     Route::get('adminall','adminall')->name('admin.all');
     Route::get('dashboard','dashboard');
+    Route::get('department-management','adddepartment')->name('add.dep');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,4 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/', function () {
     return view('admin.login');
+});
+
+Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentController::class)->group(function(){
+    Route::post('new-department','newDepartment')->name('new.department');
 });
