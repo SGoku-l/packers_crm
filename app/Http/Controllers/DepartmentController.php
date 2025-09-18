@@ -15,7 +15,7 @@ class DepartmentController extends Controller
             'depremark' => 'nullable|string|max:200'
         ]);
 
-        Department::create([
+        $department =  Department::create([
             'department_name' => $request->depname,
             'remark' => $request->depremark,
             'view' => $request->has('depview')? 1 : 0,
@@ -27,9 +27,13 @@ class DepartmentController extends Controller
             'modified_at' => now()
         ]);
 
+         //This ensures the response contains user info
+        $department->load('user');
+
         return response()->json([
             'status' => true,
-            'message' => 'Department Created Successfully'
+            'message' => 'Department Created Successfully',
+            'department' => $department
         ]);
 
     }

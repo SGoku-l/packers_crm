@@ -54,9 +54,10 @@
                                         </tr>
                                     </thead>
                                     <tbody class="text-center align-middle" id="departmentTableBody">
-
                                         <tr>
-                                            <td colspan="8" class="text-center"><div class="spinner-border spinner-border-custom-5 border-info" role="status"></div> </td>
+                                            <td colspan="8" class="text-center">
+                                                <div class="spinner-border spinner-border-custom-5 border-info" role="status"></div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -70,47 +71,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Sidebar (offcanvas) -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="Appearance" aria-labelledby="AppearanceLabel">
-            <div class="offcanvas-header border-bottom justify-content-between">
-                <h5 class="m-0 font-14" id="AppearanceLabel">Appearance</h5>
-                <button type="button" class="btn-close text-reset p-0 m-0 align-self-center" data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <h6>Account Settings</h6>
-                <div class="p-2 text-start mt-3">
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="settings-switch1">
-                        <label class="form-check-label" for="settings-switch1">Auto updates</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="settings-switch2" checked>
-                        <label class="form-check-label" for="settings-switch2">Location Permission</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="settings-switch3">
-                        <label class="form-check-label" for="settings-switch3">Show offline Contacts</label>
-                    </div>
-                </div>
-                <h6>General Settings</h6>
-                <div class="p-2 text-start mt-3">
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="settings-switch4">
-                        <label class="form-check-label" for="settings-switch4">Show me Online</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="settings-switch5" checked>
-                        <label class="form-check-label" for="settings-switch5">Status visible to all</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="settings-switch6">
-                        <label class="form-check-label" for="settings-switch6">Notifications Popup</label>
                     </div>
                 </div>
             </div>
@@ -130,7 +90,7 @@
 
                     <!-- Modal Body -->
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('new.department') }}">
+                        <form id="departmentForm">
                             @csrf
                             <div class="mb-3">
                                 <label for="departmentName" class="form-label">Department Name</label>
@@ -141,8 +101,6 @@
                                 <input type="text" class="form-control mb-3" id="departmentRemark"
                                     placeholder="Enter Department Remark" name="depremark">
 
-                                <!-- Switches in one line -->
-
                                 <label for="departmentRemark" class="form-label">Access</label>
                                 <div class="d-flex gap-4 flex-wrap">
                                     <div class="form-check form-switch form-switch-success">
@@ -150,32 +108,30 @@
                                             name="depview" value="1">
                                         <label class="form-check-label" for="customSwitchview">View</label>
                                     </div>
-
                                     <div class="form-check form-switch form-switch-success">
                                         <input class="form-check-input" type="checkbox" id="customSwitchedit"
                                             name="depedit" value="1">
                                         <label class="form-check-label" for="customSwitchedit">Edit</label>
                                     </div>
-
                                     <div class="form-check form-switch form-switch-success">
                                         <input class="form-check-input" type="checkbox" id="customSwitchdelete"
                                             name="depdelete" value="1">
                                         <label class="form-check-label" for="customSwitchdelete">Delete</label>
                                     </div>
-
                                     <div class="form-check form-switch form-switch-success">
                                         <input class="form-check-input" type="checkbox" id="customSwitchcreate"
                                             name="depcreate" value="1">
                                         <label class="form-check-label" for="customSwitchcreate">Create</label>
                                     </div>
                                 </div>
+
                                 <label for="departmentRemark" class="form-label">Access Menu</label>
-                                <div class="border rounded p-3" >
-                                  <div id="menuContainer"><div class="spinner-border spinner-border-custom-5 border-info" role="status"></div> </div>
+                                <div class="border rounded p-3">
+                                    <div id="menuContainer">
+                                        <div class="spinner-border spinner-border-custom-5 border-info" role="status"></div>
+                                    </div>
                                 </div>
-
                             </div>
-
                     </div>
 
                     <!-- Modal Footer -->
@@ -189,10 +145,47 @@
         </div>
         <!-- End Modal -->
 
-
-
-
+        <!-- SCRIPT -->
         <script>
+            // Handle add department form
+            document.getElementById("departmentForm").addEventListener("submit", function(e) {
+                e.preventDefault(); // stop normal submit
+
+                const formData = new FormData(this);
+
+                axios.post("{{ route('new.department') }}", formData)
+                    .then(response => {
+                        const dep = response.data.department;
+
+                        // Add new row to table
+                        const newRow = `
+                        <tr>
+                            <td>${dep.department_name}</td>
+                            <td>${dep.remark}</td>
+                            <td>${dep.view ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.edit ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.delete ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.create ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.user?.name ?? 'Unknown User'}</td>
+                            <td>${dep.modified_at}</td>
+                        </tr>
+                        `;
+                        document.querySelector("#departmentTableBody").insertAdjacentHTML("beforeend", newRow);
+
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalScrollable'));
+                        modal.hide();
+
+                        // Reset form
+                        document.getElementById("departmentForm").reset();
+                    })
+                    .catch(error => {
+                        alert("Error saving department");
+                        console.error(error);
+                    });
+            });
+
+            // Load all departments + menus
             axios.get("viewdep")
                 .then(response => {
                     const departments = response.data.department;
@@ -203,55 +196,44 @@
                         <tr>
                             <td>${dep.department_name}</td>
                             <td>${dep.remark}</td>
-                            <td>${dep.view ?
-                                                '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' :
-                                                '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                            <td>${dep.edit ?
-                                                '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' :
-                                                '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                            <td>${dep.delete ?
-                                                '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' :
-                                                '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                            <td>${dep.create ?
-                                                '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' :
-                                                '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                            <td>${dep.user?.name ?? 'Unknown User'}</td>
+                            <td>${dep.view ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.edit ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.delete ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.create ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                            <td>${dep.user ? dep.user.name : "Unknown User"}</td>
                             <td>${dep.modified_at}</td>
                         </tr>
                         `;
                     });
 
                     document.getElementById("departmentTableBody").innerHTML = rows;
+
                     const menuData = response.data.menu;
                     let html = "";
 
-                    // Loop menu groups
                     Object.entries(menuData).forEach(([menuName, submenus]) => {
-                    html += `
-                        <div class="mb-3">
-                        <h6 class="fw-bold">${menuName}</h6>
-                        <div class="ms-3">
-                    `;
-
-                    // Loop submenus
-                    submenus.forEach(submenu => {
                         html += `
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox"
-                                id="submenu${submenu.id}" name="accessmenu[]"
-                                value="${submenu.id}">
-                            <label class="form-check-label" for="submenu${submenu.id}">
-                            ${submenu.submenu}
-                            </label>
-                        </div>
+                            <div class="mb-3">
+                                <h6 class="fw-bold">${menuName}</h6>
+                                <div class="ms-3">
                         `;
-                    });
-
-                    html += `
-                        </div>
-                        </div>
-                        <hr>
-                    `;
+                        submenus.forEach(submenu => {
+                            html += `
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox"
+                                        id="submenu${submenu.id}" name="accessmenu[]"
+                                        value="${submenu.id}">
+                                    <label class="form-check-label" for="submenu${submenu.id}">
+                                        ${submenu.submenu}
+                                    </label>
+                                </div>
+                            `;
+                        });
+                        html += `
+                                </div>
+                            </div>
+                            <hr>
+                        `;
                     });
 
                     document.getElementById("menuContainer").innerHTML = html;
@@ -260,9 +242,8 @@
                     document.getElementById("departmentTableBody").innerHTML =
                         `<tr><td colspan="8" class="text-danger text-center">Error loading departments</td></tr>`;
                     document.getElementById("menuContainer").innerHTML =
-                    `<p class="text-danger">Error loading menus</p>`;
+                        `<p class="text-danger">Error loading menus</p>`;
                     console.error(error);
                 });
-               
         </script>
         @include('admin.footer')
