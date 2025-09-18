@@ -26,12 +26,4 @@ class HomeController extends Controller
     public function adminall(){
         return view('admin.admin-all');
     }
-
-    public function adddepartment(){
-
-        $menu = Menu::select('id','menu','submenu')->get()->groupBy('menu');
-
-        return view('admin.department',compact('menu'));
-
-    }
 }
