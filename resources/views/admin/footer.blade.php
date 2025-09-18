@@ -14,7 +14,7 @@
                                                 class="text-muted d-none d-sm-inline-block float-end">
                                                 Design with
                                                 <i class="iconoir-heart-solid text-danger align-middle"></i>
-                                                by Mannatthemes</span>
+                                                by 123Krishnagiri </span>
                                         </p>
                                     </div>
                                 </div>

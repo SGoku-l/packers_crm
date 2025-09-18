@@ -20,7 +20,7 @@
          <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
          <link href="{{ asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />  
 
-
+                   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
           <link href="{{ asset('assets/libs/simple-datatables/style.css') }}" rel="stylesheet" type="text/css" />
 
     </head>

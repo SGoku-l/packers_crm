@@ -35,6 +35,7 @@ Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','v
     Route::get('adminall','adminall')->name('admin.all');
     Route::get('dashboard','dashboard');
     Route::get('department-management','adddepartment')->name('add.dep');
+     Route::get('viewdep','viewdep');
 });
 
 // Route::middleware('auth:sanctum')->group(function () {

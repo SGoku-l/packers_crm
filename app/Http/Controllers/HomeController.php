@@ -30,19 +30,21 @@ class HomeController extends Controller
 
     public function adddepartment(){
 
+        return view('admin.department');
+
+    }
+    public function viewdep(){
+        
         $menu = Menu::select('id','menu','submenu')->get()->groupBy('menu');
         $department = Department::with('user')->get();
 
         return response()->json([
             'status' => true,
             'message' => 'Department Fetch Successfully',
-            'data' => [
-                $department,
-                $menu
-            ]
+            'department' => $department,
+            'menu' => $menu
         ]);
 
-        // return view('admin.department',compact('menu','department'));
-
     }
+
 }
