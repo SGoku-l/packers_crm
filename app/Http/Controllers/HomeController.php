@@ -33,7 +33,16 @@ class HomeController extends Controller
         $menu = Menu::select('id','menu','submenu')->get()->groupBy('menu');
         $department = Department::with('user')->get();
 
-        return view('admin.department',compact('menu','department'));
+        return response()->json([
+            'status' => true,
+            'message' => 'Department Fetch Successfully',
+            'data' => [
+                $department,
+                $menu
+            ]
+        ]);
+
+        // return view('admin.department',compact('menu','department'));
 
     }
 }

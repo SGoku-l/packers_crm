@@ -190,43 +190,28 @@
                                     </div>
                                 </div>
                                 <label for="departmentRemark" class="form-label">Access Menu</label>
-                                <div class="startbar-menu">
-                                    <div class="startbar-collapse" id="startbarCollapse" data-simplebar>
-                                        <div class="d-flex align-items-start flex-column w-100">
-
-                                            <!-- Loop Menus -->
-                                            <ul class="navbar-nav mb-auto w-100">
-                                                <div class="row text-center">
-                                                    @foreach($menu as $menuName => $submenus)
-                                                        <div class="col-md-4 col-sm-6 mb-4">
-                                                            <li class="nav-item mb-3">
-                                                                <!-- Menu Name -->
-                                                                <span class="fw-bold d-block mb-2">{{ $menuName }}</span>
-
-                                                                <!-- Submenu -->
-                                                                <div class="row g-3">
-                                                                    <div class="col-md-4 col-sm-6">
-                                                                        @foreach ($submenus as $submenu)
-                                                                        
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input" type="checkbox" id="submenu{{ $submenu->id }}" name="accessmenu[]" value="{{ $submenu->id }}">
-                                                                            <label class="form-check-label" for="submenu{{ $submenu->id }}">
-                                                                                {{ $submenu->submenu }}
-                                                                            </label>
-                                                                        </div>
-                                                                        
-                                                                        @endforeach
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        </div>    
+                                    <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                                        @foreach($menu as $menuName => $submenus)
+                                            <div class="mb-3">
+                                                <!-- Menu Name -->
+                                                <h6 class="fw-bold">{{ $menuName }}</h6>
+                                                
+                                                <!-- Submenus under the menu -->
+                                                <div class="ms-3">
+                                                    @foreach ($submenus as $submenu)
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="checkbox" id="submenu{{ $submenu->id }}" name="accessmenu[]" value="{{ $submenu->id }}">
+                                                            <label class="form-check-label" for="submenu{{ $submenu->id }}">
+                                                                {{ $submenu->submenu }}
+                                                            </label>
+                                                        </div>
                                                     @endforeach
-                                                    
                                                 </div>
-                                            </ul><!-- end navbar-nav -->
-                                        </div>
+                                            </div>
+                                            <hr>
+                                        @endforeach
                                     </div>
-                                </div>
+
                             </div>
                         
                             </div>

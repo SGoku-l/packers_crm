@@ -31,4 +31,16 @@ class Department extends Model
        return $this->belongsTo(User::class,'modified_by');
 
     }
+
+    public function getMenuAttribute($value){
+
+        return ucfirst($value);
+
+    }
+
+    public function getSubMenuAttribute($value){
+
+        return ucfirst($value);
+
+    }
 }
