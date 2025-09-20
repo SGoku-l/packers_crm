@@ -49,4 +49,6 @@ Route::get('/', function () {
 Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentController::class)->group(function(){
     Route::post('new-department','newDepartment')->name('new.department');
     Route::get('departments/{id}','getDepartment');
+    Route::put('departments/{id}','updateDepartmnet');
+    Route::delete('departments/{id}','destroy');
 });

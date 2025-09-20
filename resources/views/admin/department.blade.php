@@ -159,7 +159,7 @@
 
                     <!-- Modal Body -->
                     <div class="modal-body">
-                        <form id="departmentForm">
+                        <form id="updateDepartmentFormElement">
                             @csrf
                             <div class="mb-3">
                                 <input type="hidden" id="updateDepId" name="id">
@@ -207,7 +207,7 @@
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
                     </div>
                     </form>
                 </div>
@@ -242,12 +242,12 @@
             }
 
             // Handle update department form
-            document.getElementById("updateDepartmentForm").addEventListener("submit", function(e) {
+            document.getElementById("updateDepartmentFormElement").addEventListener("submit", function(e) {
                 e.preventDefault();
                 let id = document.getElementById("updateDepId").value;
                 let formData = new FormData(this);
 
-                axios.post(`/departments/${id}`, formData, {
+                axios.post(`departments/${id}`, formData, {
                     headers: { 
                         "X-HTTP-Method-Override": "PUT" 
                     }
@@ -259,7 +259,7 @@
                     document.querySelector(`#row-${id}`).outerHTML = buildRow(dep);
 
                     // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById("exampleModalScrollableUpdate")).hide();
+                    bootstrap.Modal.getInstance(document.getElementById("updateDepartmentForm")).hide();
                 })
                 .catch(err => console.error(err));
             });
@@ -272,7 +272,7 @@
 
                     if (!confirm("Are you sure you want to delete this department?")) return;
 
-                    axios.delete(`/departments/${id}`)
+                    axios.delete(`departments/${id}`)
                         .then(() => {
                             document.getElementById(`row-${id}`).remove();
                         })
