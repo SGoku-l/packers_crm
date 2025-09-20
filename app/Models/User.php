@@ -19,7 +19,8 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name', 'email','phone' ,'password', 'role_id', 'otp_code', 'otp_expires_at','current_session_id'
+        'name', 'email','phone' ,'password', 'role_id', 'otp_code', 'otp_expires_at','current_session_id','modified_by',
+        'modified_at',
     ];
 
     /**
@@ -51,7 +52,23 @@ class User extends Authenticatable
 
     }
 
+    public function getNameAttribute($value){
+
+        return ucfirst($value);
+
+    }
+
     protected $casts = [
     'role_id' => 'integer',
     ];
+
+    public function role()
+    {
+        return $this->belongsTo(Department::class, 'role_id');
+    }
+
+    public function modifiedByUser()
+    {
+        return $this->belongsTo(User::class, 'modified_by');
+    }
 }

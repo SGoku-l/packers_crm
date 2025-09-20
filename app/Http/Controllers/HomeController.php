@@ -43,7 +43,7 @@ class HomeController extends Controller
             'message' => 'Department Fetch Successfully',
             'department' => $department,
             'menu' => $menu
-        ]);
+        ]); 
 
     }
 

@@ -228,7 +228,7 @@
                         <td>${dep.delete ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
                         <td>${dep.create ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
                         <td>${dep.user ? dep.user.name : "Unknown User"}</td>
-                        <td>${dep.modified_at}</td>
+                        <td>${new Date(dep.modified_at).toLocaleString()}</td>
                         <td class="text-end">
                             <a href="#" class="edit-btn" data-id="${dep.id}" data-bs-toggle="modal" data-bs-target="#updateDepartmentForm">
                                 <i class="las la-pen text-secondary font-16"></i>

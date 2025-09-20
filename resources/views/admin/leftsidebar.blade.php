@@ -41,7 +41,7 @@
                                 <div class="collapse " id="sidebarEcommerce">
                                     <ul class="nav flex-column">
                                         <li class="nav-item">
-                                            <a class="nav-link" href="{{ route('admin.all') }}">Admin Data</a>
+                                            <a class="nav-link" href="{{ route('admin.all') }}">Admin Management</a>
                                         </li><!--end nav-item-->
                                         <li class="nav-item">
                                             <a class="nav-link" href="{{ route('add.dep') }}">Department</a>

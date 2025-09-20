@@ -5,7 +5,7 @@
         
 
         <meta charset="utf-8" />
-                <title>Starter | Mifty - Admin & Dashboard Template</title>
+                <title>Admin & Dashboard Template</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                 <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
                 <meta content="" name="author" />
@@ -40,7 +40,7 @@
                             </button>
                         </li> 
                         <li class="mx-2 welcome-text">
-                            <h5 class="mb-0 fw-semibold text-truncate">Good Morning, James!</h5>
+                            <h5 class="mb-0 fw-semibold text-truncate">Good Morning, {{ ucfirst(Auth::user()->name)  }}!</h5>
                             <!-- <h6 class="mb-0 fw-normal text-muted text-truncate fs-14">Here's your overview this week.</h6> -->
                         </li>                   
                     </ul>

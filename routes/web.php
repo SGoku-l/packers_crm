@@ -32,7 +32,7 @@ Route::prefix('admin')->controller(AuthController::class)->group(function(){
 //getting view With Auth Verifi
 
 Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
-    Route::get('adminall','adminall')->name('admin.all');
+    Route::get('admin-management','adminall')->name('admin.all');
     Route::get('dashboard','dashboard');
     Route::get('department-management','adddepartment')->name('add.dep');
      Route::get('viewdep','viewdep')->name('view.dep');
@@ -51,4 +51,9 @@ Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentCo
     Route::get('departments/{id}','getDepartment');
     Route::put('departments/{id}','updateDepartmnet');
     Route::delete('departments/{id}','destroy');
+    Route::post('new-admin','newAdmin')->name('new.admin');
+    Route::get('admin/{id}','getAdmin');
+    Route::put('adminup/{id}','updateAdmin');
+    Route::delete('admindes/{id}','destroyAdmin');
+    Route::get('admin-all','adminalll')->name('admin.alldata');
 });
