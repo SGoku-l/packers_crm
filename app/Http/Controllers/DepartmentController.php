@@ -40,7 +40,7 @@ class DepartmentController extends Controller
 
     public function getDepartment($id){
 
-        $department = Department::with('user')->findOrFail($id);
+       $department = Department::with('user')->findOrFail($id);
         
        $menuAccess = is_string($department->menu_access) 
         ? json_decode($department->menu_access, true) 
