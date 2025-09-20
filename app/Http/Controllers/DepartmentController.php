@@ -37,4 +37,31 @@ class DepartmentController extends Controller
         ]);
 
     }
+
+    public function getDepartment($id){
+
+        $department = Department::with('user')->findOrFail($id);
+        
+       $menuAccess = is_string($department->menu_access) 
+        ? json_decode($department->menu_access, true) 
+        : ($department->menu_access ?? []);
+
+         // ensure it's an array of integers
+        // $menuAccess = array_map('intval', $menuAccess);
+        // $department->menu_access = $menuAccess;
+
+        $menu = Menu::select('id','menu','submenu')->get()->groupBy('menu');
+
+        return response()->json([
+        'status' => true,
+        'message' => 'Department Fetched Successfully',
+        'department' => $department,
+        'menu' => $menu,
+        'menuAccess' => $menuAccess
+
+        ]);
+
+    }
+
+
 }

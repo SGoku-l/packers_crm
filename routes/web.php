@@ -35,7 +35,7 @@ Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','v
     Route::get('adminall','adminall')->name('admin.all');
     Route::get('dashboard','dashboard');
     Route::get('department-management','adddepartment')->name('add.dep');
-     Route::get('viewdep','viewdep');
+     Route::get('viewdep','viewdep')->name('view.dep');
 });
 
 // Route::middleware('auth:sanctum')->group(function () {
@@ -48,4 +48,5 @@ Route::get('/', function () {
 
 Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentController::class)->group(function(){
     Route::post('new-department','newDepartment')->name('new.department');
+    Route::get('departments/{id}','getDepartment');
 });
