@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\LoginLog;
 use App\Models\Otp;
-use Hash;
+// use Hash;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +15,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Jenssegers\Agent\Agent;
 use App\Models\Settings;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
+use App\Models\Permission;
 
 class AuthController extends Controller
 {
@@ -133,6 +136,13 @@ class AuthController extends Controller
             'login_otp_verifi_status' => 'pending'
         ]);
 
+        $role = Role::find($user->role_id);
+
+        if($role && $role->name === 'admin'){
+            $admin = Role::firstOrCreate(['name' => 'Admin']);
+            $admin->syncPermissions(Permission::all());
+        }
+
         //Check OTP setting
         $otpSetting = Settings::where('setting_name', 'otp')->where('status', 1)->first();
 
@@ -166,7 +176,7 @@ class AuthController extends Controller
                 'login_otp_verifi_status' => 'success',
                 'logged_in_at' => now(),
             ]);
-            // $user->tokens()->delete();
+            $user->tokens()->delete();
             // $user->createToken('auth_token')->plainTextToken;
 
             $user->login_time = now();

@@ -12,6 +12,7 @@ class EventServiceProvider extends ServiceProvider
      protected $listen = [
         \Illuminate\Auth\Events\Login::class => [
         \App\Listeners\UpdateSessionUserId::class,
+        \App\Listeners\AssignDepartmentRole::class,
         ],
     ];
     public function register(): void

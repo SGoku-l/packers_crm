@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="page-title-box d-flex justify-content-between align-items-center">
-                        <h4 class="page-title mb-0">Department</h4>
+                        <h4 class="page-title mb-0">Admin Management</h4>
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="#">Mifty</a></li>
                             <li class="breadcrumb-item"><a href="#">Admin</a></li>
@@ -39,7 +39,7 @@
                         <!-- Card Body -->
                         <div class="card-body pt-0">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped datatable" id="datatable_2">
+                                <table class="table datatable table-bordered table-striped" id="datatable_1">
                                     <thead class="table-light text-center">
                                         <tr>
                                             <th>Admin Name</th>
@@ -55,9 +55,7 @@
                                     </thead>
                                     <tbody class="text-center align-middle" id="departmentTableBody">
                                         <tr>
-                                            <td colspan="9" class="text-center">
-                                                <div class="spinner-border spinner-border-custom-5 border-info" role="status"></div>
-                                            </td>
+                                            
                                         </tr>
                                     </tbody>
                                 </table>
@@ -118,7 +116,7 @@
                                 </div>   
 
                                 <label for="adminRole" class="form-label">Access Role</label> 
-                                <select name="adminRole" id="adminRole" class="form-control mb-3" placeholder="Select Department Remark">
+                                <select name="adminRole" id="createAdminRole" class="form-control mb-3" placeholder="Select Department Remark">
 
                                 </select>      
                                     
@@ -178,8 +176,8 @@
                                     <span class="input-group-text toggle-password" onclick="togglePassword('adminconformPassword', this)">🙈</span>
                                 </div>   
 
-                                <label for="adminRole" class="form-label">Access Role</label> 
-                                <select name="adminRole" id="adminRole" class="form-control mb-3" placeholder="Select Department Remark">
+                                <label for="updateAdminRole" class="form-label">Access Role</label> 
+                                <select name="adminRole" id="updateAdminRole" class="form-control mb-3" placeholder="Select Department Remark">
 
                                 </select>      
                                     
@@ -208,27 +206,42 @@
                 input.type = "password";
                 icon.textContent = "🙈";
             }
-        }
+        }   
+            let canEdit = false;
+            let canDelete = false;
+            let canCreate = false;
+            let canView = false;
             // reusable row builder function
             function buildRow(add) {
+                 let actions = "";
+
+                if (canEdit) {
+                    actions += `
+                        <a href="#" class="edit-btn" data-id="${add.id}" data-bs-toggle="modal" data-bs-target="#updateDepartmentForm">
+                            <i class="las la-pen text-secondary font-16"></i>
+                        </a>
+                    `;
+                }
+
+                if (canDelete) {
+                    actions += `
+                        <a href="#" class="delete-btn" data-id="${add.id}">
+                            <i class="las la-trash-alt text-secondary font-16"></i>
+                        </a>
+                    `;
+                }
+
                 return `
                     <tr id="row-${add.id}">
                         <td>${add.name}</td>
                         <td>${add.email}</td>
                         <td>${add.phone}</td>
                         <td>${add.role ? add.role.department_name : '-'}</td>
-                        <td>${add.login_time}</td>
-                        <td>${add.logout_time}</td>
+                        <td>${add.login_time ?? '-'}</td>
+                        <td>${add.logout_time ?? '-'}</td>
                         <td>${add.modified_by_user ? add.modified_by_user.name : '-'}</td>
-                        <td>${new Date(add.modified_at).toLocaleString()}</td>
-                        <td class="text-end">
-                            <a href="#" class="edit-btn" data-id="${add.id}" data-bs-toggle="modal" data-bs-target="#updateDepartmentForm">
-                                <i class="las la-pen text-secondary font-16"></i>
-                            </a>
-                            <a href="#" class="delete-btn" data-id="${add.id}"> 
-                                <i class="las la-trash-alt text-secondary font-16"></i>
-                            </a>
-                        </td>
+                        <td>${add.modified_at ? new Date(add.modified_at).toLocaleString() : '-'}</td>
+                        <td class="text-end">${actions}</td>
                     </tr>
                 `;
             }
@@ -275,52 +288,37 @@
             // Handle edit button click
             document.addEventListener("click", function(e) {
                 if (e.target.closest(".edit-btn")) {
-                    e.preventDefault();
+                    e.preventDefault(); 
                     let id = e.target.closest(".edit-btn").dataset.id;
 
                     axios.get(`admin/${id}`)
                         .then(res => {
                             let admin = res.data.admin;
-
+                            // reset form 
+                            document.getElementById("updateAdminForm").reset();
                             // Fill modal fields
                             document.getElementById("updateAdminId").value = admin.id;
                             document.querySelector("#updateAdminForm [name='adminName']").value = admin.name;
                             document.querySelector("#updateAdminForm [name='adminEmail']").value = admin.email;
                             document.querySelector("#updateAdminForm [name='adminPhone']").value = admin.phone;
 
-                            // Build all menus, mark only checked ones
+                            // Build all Department Name
+                            const departments = res.data.role;
                             let html = "";
-                            Object.entries(menuData).forEach(([menuName, submenus]) => {
+
+                            departments.forEach(depart => {
                                 html += `
-                                    <div class="mb-3">
-                                        <h6 class="fw-bold">${menuName}</h6>
-                                        <div class="ms-3">
-                                `;
-                                submenus.forEach(submenu => {
-                                    let checked = accessIds.includes(String(submenu.id)) ? "checked" : "";
-                                    html += `
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="submenu${submenu.id}" name="accessmenu[]"
-                                                value="${submenu.id}" ${checked}>
-                                            <label class="form-check-label" for="submenu${submenu.id}">
-                                                ${submenu.submenu}
-                                            </label>
-                                        </div>
-                                    `;
-                                });
-                                html += `
-                                        </div>
-                                    </div>
-                                    <hr>
+                                    <option value="${depart.id}" ${depart.id == admin.role_id ? 'selected' : ''}>
+                                        ${depart.department_name}
+                                    </option>
                                 `;
                             });
 
-                            document.getElementById("menuContainers").innerHTML = html;
+                            document.getElementById("updateAdminRole").innerHTML = html;
                         })
                         .catch(err => {
-                            document.getElementById("menuContainers").innerHTML =
-                                `<p class="text-danger">Error loading menus</p>`;
+                            document.getElementById("updateAdminRole").innerHTML =
+                                `<p class="text-danger">Error loading Roles</p>`;
                             console.error(err);
                         });
                 }
@@ -355,28 +353,31 @@
             axios.get("{{ route('admin.alldata') }}")
                 .then(response => {
                     const admin = response.data.admin;
-                    let rows = "";
+                    const department = response.data.department;
 
+                    canEdit = response.data.permissions.edit;
+                    canDelete = response.data.permissions.delete;
+                    canCreate = response.data.permissions.create;
+                    canView = response.data.permissions.view;
+
+                    let rows = "";
                     admin.forEach(add => {
                         rows += buildRow(add);
                     });
-
                     document.getElementById("departmentTableBody").innerHTML = rows;
 
-                    const department = response.data.department;
                     let html = "";
-
                     department.forEach(depart => {
-                        html += `
-                                <option value="${depart.id}">${ depart.department_name }</option>
-                            `;
+                        html += `<option value="${depart.id}">${depart.department_name}</option>`;
                     });
+                    document.getElementById("createAdminRole").innerHTML = html;
 
-                    document.getElementById("adminRole").innerHTML = html;
+                    const addBtn = document.querySelector('[data-bs-target="#exampleModalScrollable"]');
+                        if (!canCreate && addBtn) addBtn.style.display = 'none';
                 }).catch(error => {
                     document.getElementById("departmentTableBody").innerHTML =
-                        `<tr><td colspan="9" class="text-danger text-center">Error loading departments</td></tr>`;
-                    document.getElementById("adminRole").innerHTML =
+                        `<tr><td colspan="9" class="text-danger text-center">Error loading Admin</td></tr>`;
+                    document.getElementById("createAdminRole").innerHTML =
                         `<p class="text-danger">Error loading menus</p>`;
                     console.error(error);
                 });

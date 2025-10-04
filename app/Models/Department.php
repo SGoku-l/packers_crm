@@ -15,7 +15,8 @@ class Department extends Model
         'create',
         'menu_access',
         'modified_by',
-        'modified_at'
+        'modified_at',
+        'role_id'
     ];
 
     protected $casts = [

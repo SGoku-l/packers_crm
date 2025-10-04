@@ -22,7 +22,7 @@
 
                    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
           <link href="{{ asset('assets/libs/simple-datatables/style.css') }}" rel="stylesheet" type="text/css" />
-
+            
     </head>
     
     <!-- Top Bar Start -->

@@ -30,10 +30,12 @@
                         <!-- Card Header -->
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">Export Table</h4>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#exampleModalScrollable">
-                                ADD DEPARTMENT
-                            </button>
+                                @can('dep.create')
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                                        data-bs-target="#exampleModalScrollable">
+                                        ADD DEPARTMENT
+                                    </button>
+                                @endcan
                         </div>
 
                         <!-- Card Body -->
@@ -54,11 +56,13 @@
                                         </tr>
                                     </thead>
                                     <tbody class="text-center align-middle" id="departmentTableBody">
-                                        <tr>
-                                            <td colspan="9" class="text-center">
-                                                <div class="spinner-border spinner-border-custom-5 border-info" role="status"></div>
-                                            </td>
-                                        </tr>
+                                        @can('dep.view')
+                                            <tr>
+                                                <td colspan="9" class="text-center">
+                                                    <div class="spinner-border spinner-border-custom-5 border-info" role="status"></div>
+                                                </td>
+                                            </tr>
+                                        @endcan
                                     </tbody>
                                 </table>
 
@@ -215,204 +219,261 @@
         </div>
          <!-- End Modal -->
 
-        <!-- SCRIPT -->
-        <script>
-            // reusable row builder function
-            function buildRow(dep) {
-                return `
-                    <tr id="row-${dep.id}">
-                        <td>${dep.department_name}</td>
-                        <td>${dep.remark}</td>
-                        <td>${dep.view ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                        <td>${dep.edit ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                        <td>${dep.delete ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                        <td>${dep.create ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
-                        <td>${dep.user ? dep.user.name : "Unknown User"}</td>
-                        <td>${new Date(dep.modified_at).toLocaleString()}</td>
-                        <td class="text-end">
-                            <a href="#" class="edit-btn" data-id="${dep.id}" data-bs-toggle="modal" data-bs-target="#updateDepartmentForm">
-                                <i class="las la-pen text-secondary font-16"></i>
-                            </a>
-                            <a href="#" class="delete-btn" data-id="${dep.id}">
-                                <i class="las la-trash-alt text-secondary font-16"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            }
 
-            // Handle update department form
-            document.getElementById("updateDepartmentFormElement").addEventListener("submit", function(e) {
-                e.preventDefault();
-                let id = document.getElementById("updateDepId").value;
-                let formData = new FormData(this);
+<script>
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (tokenMeta) {
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = tokenMeta.getAttribute('content');
+    }
 
-                axios.post(`departments/${id}`, formData, {
-                    headers: { 
-                        "X-HTTP-Method-Override": "PUT" 
+    const urlViewDep = "{{ route('view.dep') }}";               
+    const urlNewDepartment = "{{ route('new.department') }}";  
+    const urlGetDepartmentBase = "{{ url('admin/departments') }}"; 
+
+    // reusable row builder function (keeps ids unique)
+    function buildRow(dep) {
+        return `
+            <tr id="row-${dep.id}">
+                <td>${dep.department_name}</td>
+                <td>${dep.remark}</td>
+                <td class="text-center">${dep.view ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                <td class="text-center">${dep.edit ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                <td class="text-center">${dep.delete ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                <td class="text-center">${dep.create ? '<i class="fa-solid fa-square-check" style="color:#5bb450;"></i>' : '<i class="fa-solid fa-square-xmark" style="color:#f01e2c;"></i>'}</td>
+                <td>${dep.user ? dep.user.name : "Unknown User"}</td>
+                <td>${dep.modified_at ? new Date(dep.modified_at).toLocaleString() : '-'}</td>
+                <td class="text-end">
+                    ${dep.canEdit ? `<a href="#" class="edit-btn" data-id="${dep.id}" data-bs-toggle="modal" data-bs-target="#updateDepartmentForm"><i class="las la-pen text-secondary font-16"></i></a>` : ""}
+                    ${dep.canDelete ? `<a href="#" class="delete-btn" data-id="${dep.id}"><i class="las la-trash-alt text-secondary font-16"></i></a>` : ""}
+                </td>
+            </tr>
+        `;
+    }
+
+    // ---------- Add Department ----------
+    document.getElementById("departmentForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+
+        axios.post(urlNewDepartment, formData)
+            .then(response => {
+                if (response.data && response.data.department) {
+                    const dep = response.data.department;
+                    // append row
+                    document.querySelector("#departmentTableBody").insertAdjacentHTML("beforeend", buildRow(dep));
+
+                    // hide modal
+                    const modalEl = document.getElementById('exampleModalScrollable');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+
+                    form.reset();
+                } else {
+                    console.warn('Unexpected response', response);
+                    alert('Saved but unexpected response');
+                }
+            })
+            .catch(err => {
+                console.error('Add department error', err);
+                // if Laravel validation errors:
+                if (err.response && err.response.data && err.response.data.errors) {
+                    const errs = err.response.data.errors;
+                    let msg = '';
+                    Object.keys(errs).forEach(k => {
+                        msg += errs[k].join(', ') + "\n";
+                    });
+                    alert(msg);
+                } else {
+                    alert('Error saving department');
+                }
+            });
+    });
+
+    // ---------- Update Department (PUT) ----------
+    document.getElementById("updateDepartmentFormElement").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const form = this;
+        const id = document.getElementById("updateDepId").value;
+        const url = `${urlGetDepartmentBase}/${id}`;
+        const formData = new FormData(form);
+
+        axios.post(
+            url,
+            formData,
+            {
+                 headers: {
+                     "X-HTTP-Method-Override": "PUT" 
                     }
-                })
-                .then(res => {
+            })
+            .then(res => {
+                if (res.data && res.data.department) {
                     const dep = res.data.department;
+                    const row = document.querySelector(`#row-${dep.id}`);
+                    if (row) row.outerHTML = buildRow(dep);
 
-                    // Replace row with updated data
-                    document.querySelector(`#row-${id}`).outerHTML = buildRow(dep);
+                    const modalEl = document.getElementById('updateDepartmentForm');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                } else {
+                    console.warn('Unexpected update response', res);
+                }
+            })
+            .catch(err => {
+                console.error('Update department error', err);
+                alert('Error updating department');
+            });
+    });
 
-                    // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById("updateDepartmentForm")).hide();
+    // ---------- Delete ----------
+    document.addEventListener("click", function (e) {
+        if (e.target.closest(".delete-btn")) {
+            e.preventDefault();
+            const id = e.target.closest(".delete-btn").dataset.id;
+            if (!confirm("Are you sure?")) return;
+            const url = `${urlGetDepartmentBase}/${id}`;
+            axios.delete(url)
+                .then(() => {
+                    const row = document.getElementById(`row-${id}`);
+                    if (row) row.remove();
                 })
-                .catch(err => console.error(err));
-            });
+                .catch(err => {
+                    console.error('Delete error', err);
+                    alert('Error deleting department');
+                });
+        }
+    });
 
-            // Handle delete button click
-            document.addEventListener("click", function(e) {
-                if (e.target.closest(".delete-btn")) {
-                    e.preventDefault();
-                    let id = e.target.closest(".delete-btn").dataset.id;
+    // ---------- Edit button (fill update modal) ----------
+    document.addEventListener("click", function (e) {
+        if (e.target.closest(".edit-btn")) {
+            e.preventDefault();
+            const id = e.target.closest(".edit-btn").dataset.id;
+            const url = `${urlGetDepartmentBase}/${id}`;
 
-                    if (!confirm("Are you sure you want to delete this department?")) return;
+            axios.get(url)
+                .then(res => {
 
-                    axios.delete(`departments/${id}`)
-                        .then(() => {
-                            document.getElementById(`row-${id}`).remove();
-                        })
-                        .catch(err => console.error(err));
-                }
-            });
+                    console.log('GET department response', res);
+                    if (!res.data || !res.data.department) {
+                        throw new Error('Invalid response for department');
+                    }
 
-            // Handle edit button click
-            document.addEventListener("click", function(e) {
-                if (e.target.closest(".edit-btn")) {
-                    e.preventDefault();
-                    let id = e.target.closest(".edit-btn").dataset.id;
+                    const dep = res.data.department;
+                    const menuData = res.data.menu || [];
+                    const accessIds = Array.isArray(res.data.menuAccess) ? res.data.menuAccess.map(String) : [];
 
-                    axios.get(`departments/${id}`)
-                        .then(res => {
-                            let dep = res.data.department;   // department object
-                            let menuData = res.data.menu;    // all menus
-                            let accessIds = res.data.menuAccess.map(String); // only access ids from DB
+                    // fill update form fields by name inside the update form (avoid duplicate id conflicts)
+                    const updateForm = document.getElementById('updateDepartmentFormElement');
+                    updateForm.querySelector("[name='id']").value = dep.id;
+                    updateForm.querySelector("[name='depname']").value = dep.department_name || '';
+                    updateForm.querySelector("[name='depremark']").value = dep.remark || '';
+                    if (updateForm.querySelector("[name='depview']")) updateForm.querySelector("[name='depview']").checked = !!dep.view;
+                    if (updateForm.querySelector("[name='depedit']")) updateForm.querySelector("[name='depedit']").checked = !!dep.edit;
+                    if (updateForm.querySelector("[name='depdelete']")) updateForm.querySelector("[name='depdelete']").checked = !!dep.delete;
+                    if (updateForm.querySelector("[name='depcreate']")) updateForm.querySelector("[name='depcreate']").checked = !!dep.create;
 
-                            // Fill modal fields
-                            document.getElementById("updateDepId").value = dep.id;
-                            document.querySelector("#updateDepartmentForm [name='depname']").value = dep.department_name;
-                            document.querySelector("#updateDepartmentForm [name='depremark']").value = dep.remark;
-
-                            document.querySelector("#updateDepartmentForm [name='depview']").checked = dep.view;
-                            document.querySelector("#updateDepartmentForm [name='depedit']").checked = dep.edit;
-                            document.querySelector("#updateDepartmentForm [name='depdelete']").checked = dep.delete;
-                            document.querySelector("#updateDepartmentForm [name='depcreate']").checked = dep.create;
-
-                            // Build all menus, mark only checked ones
-                            let html = "";
-                            Object.entries(menuData).forEach(([menuName, submenus]) => {
-                                html += `
-                                    <div class="mb-3">
-                                        <h6 class="fw-bold">${menuName}</h6>
-                                        <div class="ms-3">
-                                `;
-                                submenus.forEach(submenu => {
-                                    let checked = accessIds.includes(String(submenu.id)) ? "checked" : "";
-                                    html += `
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="submenu${submenu.id}" name="accessmenu[]"
-                                                value="${submenu.id}" ${checked}>
-                                            <label class="form-check-label" for="submenu${submenu.id}">
-                                                ${submenu.submenu}
-                                            </label>
-                                        </div>
-                                    `;
-                                });
-                                html += `
-                                        </div>
-                                    </div>
-                                    <hr>
-                                `;
-                            });
-
-                            document.getElementById("menuContainers").innerHTML = html;
-                        })
-                        .catch(err => {
-                            document.getElementById("menuContainers").innerHTML =
-                                `<p class="text-danger">Error loading menus</p>`;
-                            console.error(err);
-                        });
-                }
-            });
-   
-            // Handle add department form
-            document.getElementById("departmentForm").addEventListener("submit", function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-
-                axios.post("{{ route('new.department') }}", formData)
-                    .then(response => {
-                        const dep = response.data.department;
-
-                        document.querySelector("#departmentTableBody").insertAdjacentHTML("beforeend", buildRow(dep));
-
-                        // Close modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalScrollable'));
-                        modal.hide();
-
-                        // Reset form
-                        document.getElementById("departmentForm").reset();
-                    })
-                    .catch(error => {
-                        alert("Error saving department");
-                        console.error(error);
-                    });
-            });
-
-            // Load all departments + menus
-            axios.get("viewdep")
-                .then(response => {
-                    const departments = response.data.department;
-                    let rows = "";
-
-                    departments.forEach(dep => {
-                        rows += buildRow(dep);
-                    });
-
-                    document.getElementById("departmentTableBody").innerHTML = rows;
-
-                    const menuData = response.data.menu;
-                    let html = "";
-
-                    Object.entries(menuData).forEach(([menuName, submenus]) => {
-                        html += `
-                            <div class="mb-3">
-                                <h6 class="fw-bold">${menuName}</h6>
-                                <div class="ms-3">
-                        `;
-                        submenus.forEach(submenu => {
+                    // Build menu checkboxes for update modal
+                    let html = '';
+                    // menuData might be an array OR object (grouped). Handle both.
+                    if (Array.isArray(menuData)) {
+                        menuData.forEach(item => {
+                            const checked = accessIds.includes(String(item.id)) ? 'checked' : '';
                             html += `
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox"
-                                        id="submenu${submenu.id}" name="accessmenu[]"
-                                        value="${submenu.id}">
-                                    <label class="form-check-label" for="submenu${submenu.id}">
-                                        ${submenu.submenu}
-                                    </label>
+                                    <input class="form-check-input" type="checkbox" id="submenu${item.id}_upd" name="accessmenu[]" value="${item.id}" ${checked}>
+                                    <label class="form-check-label" for="submenu${item.id}_upd">${item.name ?? item.submenu ?? item.title}</label>
                                 </div>
                             `;
                         });
+                    } else {
+                        // grouped: object with keys, each is array
+                        Object.entries(menuData).forEach(([group, items]) => {
+                            html += `<div class="mb-2"><h6 class="fw-bold">${group}</h6><div class="ms-2">`;
+                            items.forEach(item => {
+                                const checked = accessIds.includes(String(item.id)) ? 'checked' : '';
+                                html += `
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="submenu${item.id}_upd" name="accessmenu[]" value="${item.id}" ${checked}>
+                                        <label class="form-check-label" for="submenu${item.id}_upd">${item.name ?? item.submenu ?? item.title}</label>
+                                    </div>
+                                `;
+                            });
+                            html += `</div></div><hr/>`;
+                        });
+                    }
+
+                    document.getElementById('menuContainers').innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error fetching department for edit', err);
+                    document.getElementById('menuContainers').innerHTML = `<p class="text-danger">Error loading menus</p>`;
+                    alert('Error loading department data. Check console/network tab.');
+                });
+        }
+    });
+
+    // ---------- Load all departments + menus on page load ----------
+    function loadAll() {
+        axios.get(urlViewDep)
+            .then(response => {
+                console.log('viewdep response', response);
+                const departments = response.data.department || [];
+                const menu = response.data.menu || [];
+
+                // Build table rows
+                let rows = '';
+                departments.forEach(dep => {
+                    rows += buildRow(dep);
+                });
+                document.getElementById("departmentTableBody").innerHTML = rows || `<tr><td colspan="9" class="text-center">No records</td></tr>`;
+
+                // Build menu checkboxes for the CREATE modal (flat or grouped)
+                let html = '';
+                if (Array.isArray(menu)) {
+                    menu.forEach(m => {
                         html += `
-                                </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="menu${m.id}" name="accessmenu[]" value="${m.id}">
+                                <label class="form-check-label" for="menu${m.id}">${m.name ?? m.submenu ?? m.title}</label>
                             </div>
-                            <hr>
                         `;
                     });
+                } else {
+                    Object.entries(menu).forEach(([group, items]) => {
+                        html += `<div class="mb-2"><h6 class="fw-bold">${group}</h6><div class="ms-2">`;
+                        items.forEach(item => {
+                            html += `
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="menu${item.id}" name="accessmenu[]" value="${item.id}">
+                                    <label class="form-check-label" for="menu${item.id}">${item.name ?? item.submenu ?? item.title}</label>
+                                </div>
+                            `;
+                        });
+                        html += `</div></div><hr/>`;
+                    });
+                }
+                document.getElementById("menuContainer").innerHTML = html || `<p class="text-muted">No menus available</p>`;
+            })
+            .catch(error => {
+                console.error('Error loading viewdep', error);
+                document.getElementById("departmentTableBody").innerHTML = `<tr><td colspan="9" class="text-danger text-center">Error loading departments</td></tr>`;
+                document.getElementById("menuContainer").innerHTML = `<p class="text-danger">Error loading menus</p>`;
 
-                    document.getElementById("menuContainer").innerHTML = html;
-                })
-                .catch(error => {
-                    document.getElementById("departmentTableBody").innerHTML =
-                        `<tr><td colspan="9" class="text-danger text-center">Error loading departments</td></tr>`;
-                    document.getElementById("menuContainer").innerHTML =
-                        `<p class="text-danger">Error loading menus</p>`;
-                    console.error(error);
-                });
-        </script>
+                // Helpful debug alert — remove in production
+                if (error.response) {
+                    // show server response body / status
+                    console.warn('Server responded with', error.response.status, error.response.data);
+                } else {
+                    console.warn('Network or CORS error', error);
+                }
+            });
+    }
+
+    // call on load
+    loadAll();
+
+</script>
+
 @include('admin.footer')
