@@ -33,10 +33,10 @@ Route::prefix('admin')->controller(AuthController::class)->group(function(){
 //getting view With Auth Verifi
 
 Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','verified'])->group(function(){
-    Route::get('admin-management','adminall')->name('admin.all')->middleware('permission:view');
+    Route::get('admin-management','adminall')->name('admin.all')->middleware('permission:admin.view');
     Route::get('dashboard','dashboard');
-    Route::get('department-management','adddepartment')->name('add.dep')->middleware('permission:view');
-     Route::get('viewdep','viewdep')->name('view.dep');
+    Route::get('department-management','adddepartment')->name('add.dep')->middleware('permission:dep.view');
+    Route::get('viewdep','viewdep')->name('view.dep');
 });
 
 // Route::middleware('auth:sanctum')->group(function () {
@@ -48,13 +48,17 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentController::class)->group(function(){
-    Route::post('new-department','newDepartment')->name('new.department')->middleware('permission:create');
-    Route::get('departments/{id}','getDepartment')->middleware('permission:view');
-    Route::put('departments/{id}','updateDepartmnet')->middleware('permission:edit');
-    Route::delete('departments/{id}','destroy')->middleware('permission:delete');
-    Route::post('new-admin','newAdmin')->name('new.admin');
-    Route::get('admin/{id}','getAdmin');
-    Route::put('adminup/{id}','updateAdmin');
-    Route::delete('admindes/{id}','destroyAdmin');
-    Route::get('admin-all','adminalll')->name('admin.alldata');
+    Route::post('new-department','newDepartment')->name('new.department')->middleware('permission:dep.create');
+    Route::get('departments/{id}','getDepartment')->middleware('permission:dep.view');
+    Route::put('departments/{id}','updateDepartmnet')->middleware('permission:dep.edit');
+    Route::delete('departments/{id}','destroy')->middleware('permission:dep.delete');
+    Route::post('new-admin','newAdmin')->name('new.admin')->middleware('permission:admin.create');
+    Route::get('admin/{id}','getAdmin')->middleware('permission:admin.view');
+    Route::put('adminup/{id}','updateAdmin')->middleware('permission:admin.edit');
+    Route::delete('admindes/{id}','destroyAdmin')->middleware('permission:admin.delete');
+    Route::get('admin-all','adminalll')->name('admin.alldata')->middleware('permission:admin.view');
+});
+
+Route::get('/check-file', function() {
+    dd('Hello, this is the file you are editing!');
 });
