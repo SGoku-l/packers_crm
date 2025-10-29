@@ -83,12 +83,12 @@ class AuthController extends Controller
         $user->save();
         Auth::login($user);
         $request->session()->regenerate();
+        $user->current_session_id = session()->getId();
         $user->tokens()->delete();
         //it will show the dump
         // dd(Auth::check(), Auth::user());
         $user->createToken('auth_token')->plainTextToken;
         $user->login_time = now();
-        $user->current_session_id = session()->getId();
         $user->session_expires_at = now()->addDays(7);
         $user->save();
         
@@ -169,6 +169,7 @@ class AuthController extends Controller
             //direct login
             Auth::login($user);
             $request->session()->regenerate();
+            $user->current_session_id = $request->session()->getId();
             //it will make dump
             // dd(Auth::check(), Auth::user());
             // dd(Auth::check(), Auth::user(), session()->all());
@@ -180,7 +181,6 @@ class AuthController extends Controller
             // $user->createToken('auth_token')->plainTextToken;
 
             $user->login_time = now();
-            $user->current_session_id = $request->session()->getId();
             $user->session_expires_at = now()->addDays(7);
             $user->save();
 

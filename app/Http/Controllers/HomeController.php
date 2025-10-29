@@ -36,6 +36,13 @@ class HomeController extends Controller
         return view('admin.department');
 
     }
+
+    public function leadstatus(){
+
+        return view('admin.leadsource');
+
+    }
+
     public function viewdep(){
         
         $permissions = Permission::all()->groupBy(function ($perm) {
@@ -69,6 +76,7 @@ class HomeController extends Controller
             'menu' => [
             'dep' => Permission::where('name', 'like', 'dep.%')->get(),
             'admin' => Permission::where('name', 'like', 'admin.%')->get(),
+            'lead' => Permission::where('name','like','lead.%')->get(),
         ]
         ]); 
 

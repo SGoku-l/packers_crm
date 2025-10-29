@@ -52,7 +52,25 @@
                                         </li><!--end nav-item-->
                                     </ul><!--end nav-->
                                 </div>
-                            </li>    
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#sidebarAdvancedUI" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="sidebarAdvancedUI">
+                                    <i class="iconoir-peace-hand menu-icon"></i>
+                                    <span>Lead Management</span>
+                                </a>
+                                <div class="collapse " id="sidebarAdvancedUI">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                           @can('lead.view')
+                                            <a class="nav-link" href="{{ route('lead.statuses.sources') }}">Lead</a>
+                                           @endcan  
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
                             <li class="nav-item">
                                 <form id="logoutForm" method="POST" action="{{ url('admin/logout') }}">
                                     @csrf

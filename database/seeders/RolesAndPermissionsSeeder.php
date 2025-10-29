@@ -13,15 +13,22 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
+        // $permissions = [
+        //     "dep.view",
+        //     "dep.edit",
+        //     "dep.delete",
+        //     "dep.create",
+        //     "admin.view",
+        //     "admin.create",
+        //     "admin.delete",
+        //     "admin.edit"
+        // ];
+
         $permissions = [
-            "dep.view",
-            "dep.edit",
-            "dep.delete",
-            "dep.create",
-            "admin.view",
-            "admin.create",
-            "admin.delete",
-            "admin.edit"
+            "lead.view",
+            "lead.edit",
+            "lead.create",
+            "lead.delete"
         ];
 
         // Create permissions

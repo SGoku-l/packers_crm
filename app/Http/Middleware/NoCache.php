@@ -24,13 +24,18 @@ class NoCache
         if ($request->hasSession() && Auth::check()) {
             $user = Auth::user();
 
-            // If already logged in and visiting login/register, redirect
+            // Redirect logged-in users away from login/register
             if ($request->is('admin/login') || $request->is('admin/register')) {
                 return redirect('admin/dashboard');
             }
 
-            // Enforce single session (only on protected routes, not login/register)
-            if (! $request->is('admin/login') && ! $request->is('admin/register')) {
+            // Skip session enforcement on login, register, OTP, and all POST requests
+            if (
+                ! $request->is('admin/login') &&
+                ! $request->is('admin/register') &&
+                ! $request->is('admin/verify-otp') &&
+                ! $request->isMethod('post')
+            ) {
                 if (
                     $user->current_session_id &&
                     $request->session()->getId() !== $user->current_session_id

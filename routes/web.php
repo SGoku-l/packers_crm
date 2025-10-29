@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Middleware\NoCache;
 use Illuminate\Support\Facades\Request;
+use App\Http\Controllers\LeadController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -37,6 +38,7 @@ Route::prefix('admin')->controller(HomeController::class)->middleware(['auth','v
     Route::get('dashboard','dashboard');
     Route::get('department-management','adddepartment')->name('add.dep')->middleware('permission:dep.view');
     Route::get('viewdep','viewdep')->name('view.dep');
+    Route::get('lead-statuses-sources','leadstatus')->name('lead.statuses.sources');
 });
 
 // Route::middleware('auth:sanctum')->group(function () {
@@ -59,6 +61,24 @@ Route::prefix('admin')->middleware(['auth','verified'])->controller(DepartmentCo
     Route::get('admin-all','adminalll')->name('admin.alldata')->middleware('permission:admin.view');
 });
 
-Route::get('/check-file', function() {
-    dd('Hello, this is the file you are editing!');
+Route::prefix('admin')->middleware(['auth','verified'])->controller(LeadController::class)->group(function(){
+
+    Route::get('lead-statuses-fetch-api','leadstatues')->name('lead.statuses.index');
+    Route::post('lead-statuses-store-api','leadstatusstore');
+    Route::put('lead-statuses-update-api/{id}','leadstatusupdate');
+    Route::put('lead-statuses-toggle-api/{id}/toggle','leadstatustoggle');
+    Route::delete('lead-statuses-delete-api/{id}','leadstatusdelete');
+
+    Route::get('lead-source-fetch-api','leadsource')->name('lead.sources.index');
+    Route::post('lead-source-store-api','leadsourcestore');
+    Route::put('lead-source-update-api/{id}','leadsourceupdate');
+    Route::put('lead-source-toggle-api/{id}/toggle','leadsourcetoggle');
+    Route::delete('lead-source-delete-api/{id}','leadsourcedelete');
+    
+    Route::get('lead-followmethod-fetch-api','leadfollowmethod')->name('follow.methods.index');
+    Route::post('lead-followmethod-store-api','leadfollowmethodstore');
+    Route::put('lead-followmethod-update-api/{id}','leadfollowmethodupdate');
+    Route::put('lead-followmethod-toggle-api/{id}/toggle','leadfollowmethodtoggle');
+    Route::delete('lead-followmethod-delete-api/{id}','leadfollowmethoddelete');
+    
 });
