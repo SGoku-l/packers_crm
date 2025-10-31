@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HomeController;
 use GuzzleHttp\Middleware;
@@ -9,6 +8,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Middleware\NoCache;
 use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -74,11 +74,18 @@ Route::prefix('admin')->middleware(['auth','verified'])->controller(LeadControll
     Route::put('lead-source-update-api/{id}','leadsourceupdate');
     Route::put('lead-source-toggle-api/{id}/toggle','leadsourcetoggle');
     Route::delete('lead-source-delete-api/{id}','leadsourcedelete');
-    
+
     Route::get('lead-followmethod-fetch-api','leadfollowmethod')->name('follow.methods.index');
     Route::post('lead-followmethod-store-api','leadfollowmethodstore');
     Route::put('lead-followmethod-update-api/{id}','leadfollowmethodupdate');
     Route::put('lead-followmethod-toggle-api/{id}/toggle','leadfollowmethodtoggle');
     Route::delete('lead-followmethod-delete-api/{id}','leadfollowmethoddelete');
     
+});
+
+Route::prefix('admin')->middleware(['auth','verified'])->controller(SettingsController::class)->group(function(){
+
+    Route::get('profile-setting-page','profilepage')->name('profile.page');
+    Route::post('profile-pic','profileImage')->name('profile.pic');
+
 });

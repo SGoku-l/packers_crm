@@ -74,4 +74,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'modified_by');
     }
+
+    public function profileImage()
+    {
+        return $this->hasOne(ProfilePic::class, 'uid');
+    }
+
 }

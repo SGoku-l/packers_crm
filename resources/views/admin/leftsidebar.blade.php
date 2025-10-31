@@ -71,6 +71,21 @@
                                 </div>
                             </li>
 
+                             <li class="nav-item">
+                                <a class="nav-link" href="#sidebarElements" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="sidebarElements">
+                                    <i class="iconoir-compact-disc menu-icon"></i>
+                                    <span>Settings</span>
+                                </a>
+                                <div class="collapse " id="sidebarElements">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('profile.page') }}">Profile Settings</a>
+                                        </li>
+                                    </ul><!--end nav-->
+                                </div><!--end startbarElements-->
+                            </li>
+
                             <li class="nav-item">
                                 <form id="logoutForm" method="POST" action="{{ url('admin/logout') }}">
                                     @csrf
@@ -83,7 +98,9 @@
                         </ul><!--end navbar-nav--->
                     </div>
                 </div><!--end startbar-collapse-->
-            </div><!--end startbar-menu-->    
+            </div><!--end startbar-menu-->
+            
+            
         </div><!--end startbar-->
         <div class="startbar-overlay d-print-none"></div>
         <!-- end leftbar-tab-menu-->
