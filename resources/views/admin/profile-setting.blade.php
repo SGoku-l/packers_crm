@@ -73,13 +73,14 @@
                                     <h4 class="card-title">Personal Information</h4>
                                 </div>
                                 <div class="card-body pt-0">
-                                    <form>
+                                    <form id="profileForm">
+                                        @csrf
                                         <div class="row mb-3 align-items-center">
                                             <div class="col-md-3 col-12">
                                                 <label class="form-label mb-md-0">First Name</label>
                                             </div>
                                             <div class="col-md-9 col-12">
-                                                <input class="form-control" type="text" value="{{ Auth::user()->name }}">
+                                                <input class="form-control" type="text" value="{{ Auth::user()->name }}" name="name" id="name">
                                             </div>
                                         </div>
 
@@ -90,7 +91,7 @@
                                             <div class="col-md-9 col-12">
                                                 <div class="input-group">
                                                     <span class="input-group-text"><i class="las la-phone"></i></span>
-                                                    <input type="text" class="form-control" value="{{ Auth::user()->phone }}">
+                                                    <input type="text" class="form-control" value="{{ Auth::user()->phone }}" name="phone" id="phone">
                                                 </div>
                                             </div>
                                         </div>
@@ -102,7 +103,7 @@
                                             <div class="col-md-9 col-12">
                                                 <div class="input-group">
                                                     <span class="input-group-text"><i class="las la-at"></i></span>
-                                                    <input type="text" class="form-control" value="{{ Auth::user()->email }}">
+                                                    <input type="text" class="form-control" value="{{ Auth::user()->email }}" name="email" id="email">
                                                 </div>
                                             </div>
                                         </div>
@@ -114,6 +115,7 @@
                                             </div>
                                         </div>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -251,6 +253,40 @@ document.getElementById('saveProfileBtn').addEventListener('click', function () 
         }
     })
     .catch(err => console.error("Error uploading:", err));
+});
+
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch("{{ route('profile.updateInfo') }}", {
+        method: "POST",
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("✅ API Response:", data); // <--- 👈 shows JSON in DevTools console
+
+        if (data.status) {
+            // ✅ Update displayed info without reload
+            document.querySelector('.fs-3.fw-bold').textContent = formData.get('name');
+            document.querySelector('.text-muted.mb-2').textContent = formData.get('email');
+            document.querySelector('.text-body.mb-0').innerHTML = 
+                `<i class="iconoir-phone fs-20 me-1 text-muted"></i>+91 ${formData.get('phone')}`;
+
+            toastr.success(data.message);
+        } else {
+            toastr.error(data.message || "Failed to update profile");
+        }
+    })
+    .catch(err => {
+        console.error("❌ Fetch Error:", err);
+        toastr.error("Something went wrong!");
+    });
 });
 </script>
 

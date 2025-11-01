@@ -87,5 +87,6 @@ Route::prefix('admin')->middleware(['auth','verified'])->controller(SettingsCont
 
     Route::get('profile-setting-page','profilepage')->name('profile.page');
     Route::post('profile-pic','profileImage')->name('profile.pic');
+    Route::post('/profile/update','profileInformation')->name('profile.updateInfo');
 
 });

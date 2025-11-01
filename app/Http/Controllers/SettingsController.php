@@ -6,6 +6,7 @@ use App\Models\ProfilePic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use App\Models\User;
 
 class SettingsController extends Controller
 {
@@ -53,4 +54,30 @@ class SettingsController extends Controller
        ],200);
 
     }
+
+    public function profileInformation(Request $request){
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'phone' => 'required|string|max:20',
+        ]);
+
+        $user = User::find(Auth::id());
+
+        if($user){
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile info updated successfully',
+        ]);
+
+    }
+
 }
