@@ -17,6 +17,37 @@ const saveBtn = document.getElementById('saveBtn');
 
 let editId = null;
 
+/* -----------------------------
+    Bootstrap Toast Helper
+------------------------------ */
+function showToast(type, message) {
+    const container = document.querySelector('.toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} fade mb-2`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.innerHTML = `
+        <div class="toast-header">
+            <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="20" class="me-1">
+            <h5 class="me-auto my-0">Mifty</h5>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+    container.appendChild(toast);
+    const bootstrapToast = new bootstrap.Toast(toast, { delay: 4000, autohide: true });
+    bootstrapToast.show();
+}
+
+function createToastContainer() {
+    const div = document.createElement('div');
+    div.className = 'toast-container position-absolute top-0 end-0 p-3';
+    document.body.appendChild(div);
+    return div;
+}
+
 // Load data dynamically
 function loadData(type) {
     tableBody.innerHTML = `<tr><td colspan="5"><div class="spinner-border text-primary" role="status"></div></td></tr>`;
@@ -74,6 +105,7 @@ function loadData(type) {
         .catch(err => {
             console.error(err);
             tableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Error loading data</td></tr>`;
+            showToast('danger', 'Error loading data');
         });
 }
 
@@ -95,10 +127,13 @@ function attachActionHandlers(type) {
             const id = this.dataset.id;
             if (!confirm("Are you sure to delete this record?")) return;
             axios.delete(`${api[type].delete}/${id}`)
-                .then(() => loadData(type))
+                .then(() => {
+                    loadData(type);
+                    showToast('success', 'Record deleted successfully.');
+                })
                 .catch(err => {
                     console.error(err);
-                    alert("Error deleting record");
+                    showToast('danger', 'Error deleting record');
                 });
         });
     });
@@ -108,10 +143,14 @@ function attachActionHandlers(type) {
             const id = this.dataset.id;
             const newStatus = this.dataset.status;
             axios.put(`${api[type].toggle}/${id}/toggle`, { status: newStatus })
-                .then(() => loadData(type))
+                .then(() => {
+                    loadData(type);
+                    const msg = newStatus === 'active' ? 'Activated successfully.' : 'Deactivated successfully.';
+                    showToast('success', msg);
+                })
                 .catch(err => {
                     console.error(err);
-                    alert("Error updating status");
+                    showToast('danger', 'Error updating status');
                 });
         });
     });
@@ -155,8 +194,8 @@ saveBtn.addEventListener('click', function() {
     const name = nameInput.value.trim();
     const status = statusInput.value;
 
-    if (!name) return alert("Please enter a name");
-    if (!status) return alert("Please select a status");
+    if (!name) return showToast('warning', 'Please enter a name');
+    if (!status) return showToast('warning', 'Please select a status');
 
     let payload = { status: status };
     if (type === 'status') payload.lead_status = name;
@@ -172,10 +211,11 @@ saveBtn.addEventListener('click', function() {
                 editId = null;
                 saveBtn.innerText = 'Save';
                 loadData(type);
+                showToast('success', 'Record updated successfully');
             })
             .catch(err => {
                 console.error(err);
-                alert("Error updating record");
+                showToast('danger', 'Error updating record');
             });
     } else {
         axios.post(api[type].store, payload)
@@ -184,10 +224,11 @@ saveBtn.addEventListener('click', function() {
                 nameInput.value = '';
                 statusInput.value = '';
                 loadData(type);
+                showToast('success', 'Record added successfully');
             })
             .catch(err => {
                 console.error(err);
-                alert("Error saving record");
+                showToast('danger', 'Error saving record');
             });
     }
 });

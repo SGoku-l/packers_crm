@@ -110,8 +110,8 @@
 
                                         <div class="row">
                                             <div class="col-md-9 offset-md-3">
-                                                <button type="submit" class="btn btn-primary me-2">Submit</button>
-                                                <button type="button" class="btn btn-danger">Cancel</button>
+                                                <button type="submit" class="btn btn-success me-2">Update</button>
+                                                {{-- <button type="button" class="btn btn-danger">Cancel</button> --}}
                                             </div>
                                         </div>
                                     </form>
@@ -127,14 +127,14 @@
                                     <h4 class="card-title">Change Password</h4>
                                 </div>
                                 <div class="card-body pt-0">
-                                    <form>
+                                    <form id="changePasswordForm">
+                                        @csrf
                                         <div class="row mb-3 align-items-center">
                                             <div class="col-md-3 col-12">
                                                 <label class="form-label mb-md-0">Current Password</label>
                                             </div>
                                             <div class="col-md-9 col-12">
-                                                <input class="form-control" type="password" placeholder="Current Password">
-                                                <a href="#" class="text-primary font-12">Forgot password?</a>
+                                                <input class="form-control" type="password" name="current_password" placeholder="Current Password" required>
                                             </div>
                                         </div>
 
@@ -143,7 +143,7 @@
                                                 <label class="form-label mb-md-0">New Password</label>
                                             </div>
                                             <div class="col-md-9 col-12">
-                                                <input class="form-control" type="password" placeholder="New Password">
+                                                <input class="form-control" type="password" name="new_password" placeholder="New Password" required>
                                             </div>
                                         </div>
 
@@ -152,14 +152,14 @@
                                                 <label class="form-label mb-md-0">Confirm Password</label>
                                             </div>
                                             <div class="col-md-9 col-12">
-                                                <input class="form-control" type="password" placeholder="Re-enter Password">
+                                                <input class="form-control" type="password" name="new_password_confirmation" placeholder="Re-enter Password" required>
                                             </div>
                                         </div>
 
                                         <div class="row">
                                             <div class="col-md-9 offset-md-3">
                                                 <button type="submit" class="btn btn-primary me-2">Change Password</button>
-                                                <button type="button" class="btn btn-danger">Cancel</button>
+                                                <button type="reset" class="btn btn-danger">Cancel</button>
                                             </div>
                                         </div>
                                     </form>
@@ -220,6 +220,37 @@
 <script src="{{ asset('assets/js/app.js') }}"></script>
 
 <script>
+function showToast(type, message) {
+    const container = document.querySelector('.toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} fade mb-2`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+
+    toast.innerHTML = `
+        <div class="toast-header">
+            <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="20" class="me-1">
+            <h5 class="me-auto my-0">Mifty</h5>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+
+    container.appendChild(toast);
+    const bootstrapToast = new bootstrap.Toast(toast, { delay: 4000, autohide: true });
+    bootstrapToast.show();
+}
+
+function createToastContainer() {
+    const div = document.createElement('div');
+    div.className = 'toast-container position-absolute top-0 end-0 p-3';
+    document.body.appendChild(div);
+    return div;
+}
+
+
 function previewModalImage(event) {
     const file = event.target.files[0];
     if (file) {
@@ -231,7 +262,7 @@ function previewModalImage(event) {
 
 document.getElementById('saveProfileBtn').addEventListener('click', function () {
     const file = document.getElementById('modalFileInput').files[0];
-    if (!file) return console.warn("No file selected.");
+    if (!file) return showToast('danger', 'Please select an image.');
 
     const formData = new FormData();
     formData.append('profileimage', file);
@@ -243,52 +274,80 @@ document.getElementById('saveProfileBtn').addEventListener('click', function () 
     })
     .then(res => res.json())
     .then(data => {
-        console.log("📡 API Response:", data); // Visible in DevTools Console
+        console.log("📡 Profile Image Response:", data);
         if (data.status) {
             document.getElementById('profilePreview').src = data.image_url;
             document.getElementById('modalImagePreview').src = data.image_url;
             bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+            showToast('success', data.message);
         } else {
-            console.error("Upload failed:", data.message);
+            showToast('danger', data.message || "Image upload failed.");
         }
     })
-    .catch(err => console.error("Error uploading:", err));
+    .catch(err => {
+        console.error("❌ Upload Error:", err);
+        showToast('danger', "Something went wrong while uploading image.");
+    });
 });
+
 
 document.getElementById('profileForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const formData = new FormData(this);
-
     fetch("{{ route('profile.updateInfo') }}", {
         method: "POST",
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: formData
     })
     .then(res => res.json())
     .then(data => {
-        console.log("✅ API Response:", data); // <--- 👈 shows JSON in DevTools console
+        console.log("✅ Profile Update Response:", data);
 
         if (data.status) {
-            // ✅ Update displayed info without reload
+            // Update displayed info
             document.querySelector('.fs-3.fw-bold').textContent = formData.get('name');
             document.querySelector('.text-muted.mb-2').textContent = formData.get('email');
-            document.querySelector('.text-body.mb-0').innerHTML = 
+            document.querySelector('.text-body.mb-0').innerHTML =
                 `<i class="iconoir-phone fs-20 me-1 text-muted"></i>+91 ${formData.get('phone')}`;
 
-            toastr.success(data.message);
+            showToast('success', data.message);
         } else {
-            toastr.error(data.message || "Failed to update profile");
+            showToast('danger', data.message || "Failed to update profile.");
         }
     })
     .catch(err => {
         console.error("❌ Fetch Error:", err);
-        toastr.error("Something went wrong!");
+        showToast('danger', "Something went wrong!");
+    });
+});
+
+document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    fetch("{{ url('admin/change-password') }}", {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("🔐 Password Change Response:", data);
+        if (data.status) {
+            showToast('success', data.message);
+            this.reset();
+        } else {
+            showToast('danger', data.message || "Failed to update password.");
+        }
+    })
+    .catch(err => {
+        console.error("❌ Fetch Error:", err);
+        showToast('danger', "Something went wrong while changing password.");
     });
 });
 </script>
+
 
 <style>
 .profile-image-wrapper {

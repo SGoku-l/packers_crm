@@ -46,7 +46,7 @@
                     </div>
                     <div class="card-body p-4">
 
-                        <!-- ✅ Single Form -->
+                        <!-- Single Form -->
                         <form id="loginForm" method="post" action="{{ url('admin/login') }}">
                             @csrf
                             <div class="mb-3">

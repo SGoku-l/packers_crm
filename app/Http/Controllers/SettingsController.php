@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class SettingsController extends Controller
 {
@@ -76,6 +77,34 @@ class SettingsController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Profile info updated successfully',
+        ]);
+
+    }
+
+    public function profilechangepassword(Request $request){
+
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed'
+        ]);
+
+        $user = Auth::user();
+
+        if(!Hash::check($request->current_password,$user->password)){
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Current Password is Invalid'
+            ]);
+
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'New Password Updated Successfully'
         ]);
 
     }

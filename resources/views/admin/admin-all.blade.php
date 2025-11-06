@@ -198,22 +198,55 @@
         <!-- SCRIPT -->
         <script>
             function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.textContent = "👁️";
-            } else {
-                input.type = "password";
-                icon.textContent = "🙈";
+                const input = document.getElementById(inputId);
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.textContent = "👁️";
+                } else {
+                    input.type = "password";
+                    icon.textContent = "🙈";
+                }
             }
-        }   
+
+            /* -----------------------------
+              Bootstrap Toast Helper
+            ------------------------------ */
+            function showToast(type, message) {
+                const container = document.querySelector('.toast-container') || createToastContainer();
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-bg-${type} fade mb-2`;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="20" class="me-1">
+                        <h5 class="me-auto my-0">Mifty</h5>
+                        <small>Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">${message}</div>
+                `;
+                container.appendChild(toast);
+                const bootstrapToast = new bootstrap.Toast(toast, { delay: 4000, autohide: true });
+                bootstrapToast.show();
+            }
+
+            function createToastContainer() {
+                const div = document.createElement('div');
+                div.className = 'toast-container position-absolute top-0 end-0 p-3';
+                document.body.appendChild(div);
+                return div;
+            }
+
             let canEdit = false;
             let canDelete = false;
             let canCreate = false;
             let canView = false;
+
             // reusable row builder function
             function buildRow(add) {
-                 let actions = "";
+                let actions = "";
 
                 if (canEdit) {
                     actions += `
@@ -265,8 +298,13 @@
 
                     // Close modal
                     bootstrap.Modal.getInstance(document.getElementById("updateDepartmentForm")).hide();
+
+                    showToast('success', 'Admin updated successfully.');
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    showToast('danger', 'Error updating admin.');
+                });
             });
 
             // Handle delete button click
@@ -280,8 +318,12 @@
                     axios.delete(`admindes/${id}`)
                         .then(() => {
                             document.getElementById(`row-${id}`).remove();
+                            showToast('success', 'Admin deleted successfully.');
                         })
-                        .catch(err => console.error(err));
+                        .catch(err => {
+                            console.error(err);
+                            showToast('danger', 'Error deleting admin.');
+                        });
                 }
             });
 
@@ -294,15 +336,12 @@
                     axios.get(`admin/${id}`)
                         .then(res => {
                             let admin = res.data.admin;
-                            // reset form 
                             document.getElementById("updateAdminForm").reset();
-                            // Fill modal fields
                             document.getElementById("updateAdminId").value = admin.id;
                             document.querySelector("#updateAdminForm [name='adminName']").value = admin.name;
                             document.querySelector("#updateAdminForm [name='adminEmail']").value = admin.email;
                             document.querySelector("#updateAdminForm [name='adminPhone']").value = admin.phone;
 
-                            // Build all Department Name
                             const departments = res.data.role;
                             let html = "";
 
@@ -315,15 +354,17 @@
                             });
 
                             document.getElementById("updateAdminRole").innerHTML = html;
+                            showToast('info', 'Admin details loaded for editing.');
                         })
                         .catch(err => {
                             document.getElementById("updateAdminRole").innerHTML =
                                 `<p class="text-danger">Error loading Roles</p>`;
                             console.error(err);
+                            showToast('danger', 'Error loading admin data.');
                         });
                 }
             });
-   
+
             // Handle add admin form
             document.getElementById("adminForm").addEventListener("submit", function(e) {
                 e.preventDefault();
@@ -332,20 +373,31 @@
 
                 axios.post("{{ route('new.admin') }}", formData)
                     .then(response => {
-                        const add = response.data.admin;
+                        // Handle Laravel JSON properly
+                        if (response.data && response.data.status === true) {
+                            const add = response.data.admin;
 
-                        document.querySelector("#departmentTableBody").insertAdjacentHTML("beforeend", buildRow(add));
+                            document.querySelector("#departmentTableBody").insertAdjacentHTML("beforeend", buildRow(add));
 
-                        // Close modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalScrollable'));
-                        modal.hide();
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalScrollable'));
+                            modal.hide();
 
-                        // Reset form
-                        document.getElementById("adminForm").reset();
+                            document.getElementById("adminForm").reset();
+
+                            showToast('success', response.data.message || 'Admin added successfully.');
+                        } else {
+                            console.warn('Unexpected API response:', response);
+                            showToast('warning', 'Admin may have been saved, but response was unexpected.');
+                        }
                     })
                     .catch(error => {
-                        alert("Error saving Admin");
-                        console.error(error);
+                        console.error('Admin Save Error:', error);
+
+                        if (error.response && error.response.data && error.response.data.message) {
+                            showToast('danger', error.response.data.message);
+                        } else {
+                            showToast('danger', 'Something went wrong while saving admin.');
+                        }
                     });
             });
 
@@ -373,13 +425,17 @@
                     document.getElementById("createAdminRole").innerHTML = html;
 
                     const addBtn = document.querySelector('[data-bs-target="#exampleModalScrollable"]');
-                        if (!canCreate && addBtn) addBtn.style.display = 'none';
+                    if (!canCreate && addBtn) addBtn.style.display = 'none';
+
+                    showToast('success', 'Admin data loaded successfully.');
                 }).catch(error => {
                     document.getElementById("departmentTableBody").innerHTML =
                         `<tr><td colspan="9" class="text-danger text-center">Error loading Admin</td></tr>`;
                     document.getElementById("createAdminRole").innerHTML =
                         `<p class="text-danger">Error loading menus</p>`;
                     console.error(error);
+                    showToast('danger', 'Error loading admin data.');
                 });
         </script>
+
 @include('admin.footer')
