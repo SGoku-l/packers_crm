@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProfilePic;
+use App\Models\SiteImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -105,6 +106,42 @@ class SettingsController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'New Password Updated Successfully'
+        ]);
+
+    }
+
+    public function siteImage(Request $request){
+
+        $request->validate([
+            'siteimage' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $siteimage = SiteImage::where('id',1)->first();
+
+        if($siteimage && File::exists(public_path('uploads/site/' . $siteimage->site_image))){
+
+            File::delete(public_path('uploads/site/' . $siteimage->site_image));
+
+        }
+
+        $file = $request->file('siteimage');
+        $filename = time() . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('uploads/site'),$filename);
+
+        if($siteimage){
+            $siteimage->update([
+                'site_image' => $filename
+            ]);
+        }else{
+            SiteImage::create([
+                'site_image' => $filename
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Site Image Updated Successfully',
+            'site_url' => asset('uploads/site/' . $filename),
         ]);
 
     }

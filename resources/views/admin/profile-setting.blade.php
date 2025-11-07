@@ -63,6 +63,9 @@
                         <li class="nav-item">
                             <a class="nav-link fw-medium" data-bs-toggle="tab" href="#changePassword" role="tab">Change Password</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium" data-bs-toggle="tab" href="#siteImage" role="tab">Site Image</a>
+                        </li>
                     </ul>
 
                     <div class="tab-content">
@@ -111,7 +114,6 @@
                                         <div class="row">
                                             <div class="col-md-9 offset-md-3">
                                                 <button type="submit" class="btn btn-success me-2">Update</button>
-                                                {{-- <button type="button" class="btn btn-danger">Cancel</button> --}}
                                             </div>
                                         </div>
                                     </form>
@@ -166,6 +168,35 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- SITE IMAGE TAB -->
+                        <div class="tab-pane p-3 fade" id="siteImage" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Site Image</h4>
+                                </div>
+                                <div class="card-body text-center">
+                                    @php
+                                        use App\Models\SiteImage;
+                                        $siteImage = SiteImage::find(1);
+                                    @endphp
+                                    <div class="position-relative d-inline-block profile-image-wrapper">
+                                        <img id="siteImagePreview"
+                                            src="{{ $siteImage && $siteImage->site_image && file_exists(public_path('uploads/site/' . $siteImage->site_image)) 
+                                                    ? asset('uploads/site/' . $siteImage->site_image) 
+                                                    : asset('assets/images/logo-light.png') }}"
+                                            alt="Site Image"
+                                            class="rounded img-fluid"
+                                            style="width:150px;height:150px;object-fit:cover;border:3px solid #dee2e6;">
+                                        <div class="edit-icon" data-bs-toggle="modal" data-bs-target="#editSiteImageModal">
+                                            <i class="las la-edit"></i>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-muted">This image will be used as your site logo.</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -199,22 +230,40 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editProfileModalLabel">Edit Profile Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="modalImagePreview"
                     src="{{ Auth::user()->profileImage ? asset('uploads/profile/' . Auth::user()->profileImage->profile_pic) : asset('assets/images/users/avatar-5.jpg') }}"
-                    class="rounded-circle mb-3" style="width: 130px; height: 130px; object-fit: cover; border: 3px solid #dee2e6;">
-
-                <input type="file" id="modalFileInput" accept="image/*" name="profileimage" class="form-control mb-3" onchange="previewModalImage(event)">
+                    class="rounded-circle mb-3" style="width:130px;height:130px;object-fit:cover;border:3px solid #dee2e6;">
+                <input type="file" id="modalFileInput" accept="image/*" class="form-control mb-3" onchange="previewModalImage(event)">
                 <button class="btn btn-primary" id="saveProfileBtn">Save</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Edit Site Image Modal -->
+<div class="modal fade" id="editSiteImageModal" tabindex="-1" aria-labelledby="editSiteImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Site Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalSiteImagePreview"
+                    src="{{ $siteImage && $siteImage->site_image && file_exists(public_path('uploads/site/' . $siteImage->site_image)) 
+                                                    ? asset('uploads/site/' . $siteImage->site_image) 
+                                                    : asset('assets/images/logo-light.png') }}"
+                    class="rounded mb-3" style="width:130px;height:130px;object-fit:cover;border:3px solid #dee2e6;">
+                <input type="file" id="modalSiteFileInput" accept="image/*" class="form-control mb-3" onchange="previewSiteModalImage(event)">
+                <button class="btn btn-primary" id="saveSiteImageBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- Scripts -->
 <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
 <script src="{{ asset('assets/js/app.js') }}"></script>
@@ -224,23 +273,16 @@ function showToast(type, message) {
     const container = document.querySelector('.toast-container') || createToastContainer();
     const toast = document.createElement('div');
     toast.className = `toast align-items-center text-bg-${type} fade mb-2`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-
     toast.innerHTML = `
         <div class="toast-header">
             <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="20" class="me-1">
             <h5 class="me-auto my-0">Mifty</h5>
             <small>Just now</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
         </div>
-        <div class="toast-body">${message}</div>
-    `;
-
+        <div class="toast-body">${message}</div>`;
     container.appendChild(toast);
-    const bootstrapToast = new bootstrap.Toast(toast, { delay: 4000, autohide: true });
-    bootstrapToast.show();
+    new bootstrap.Toast(toast, { delay: 4000, autohide: true }).show();
 }
 
 function createToastContainer() {
@@ -250,12 +292,20 @@ function createToastContainer() {
     return div;
 }
 
-
-function previewModalImage(event) {
-    const file = event.target.files[0];
+function previewModalImage(e) {
+    const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = e => document.getElementById('modalImagePreview').src = e.target.result;
+        reader.onload = ev => document.getElementById('modalImagePreview').src = ev.target.result;
+        reader.readAsDataURL(file);
+    }
+}
+
+function previewSiteModalImage(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = ev => document.getElementById('modalSiteImagePreview').src = ev.target.result;
         reader.readAsDataURL(file);
     }
 }
@@ -263,128 +313,53 @@ function previewModalImage(event) {
 document.getElementById('saveProfileBtn').addEventListener('click', function () {
     const file = document.getElementById('modalFileInput').files[0];
     if (!file) return showToast('danger', 'Please select an image.');
-
     const formData = new FormData();
     formData.append('profileimage', file);
-
-    fetch("{{ route('profile.pic') }}", {
-        method: "POST",
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: formData
-    })
+    fetch("{{ route('profile.pic') }}", { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: formData })
     .then(res => res.json())
     .then(data => {
-        console.log("📡 Profile Image Response:", data);
         if (data.status) {
             document.getElementById('profilePreview').src = data.image_url;
             document.getElementById('modalImagePreview').src = data.image_url;
             bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
             showToast('success', data.message);
-        } else {
-            showToast('danger', data.message || "Image upload failed.");
-        }
+        } else showToast('danger', data.message);
     })
-    .catch(err => {
-        console.error("❌ Upload Error:", err);
-        showToast('danger', "Something went wrong while uploading image.");
-    });
+    .catch(err => showToast('danger', 'Upload failed.'));
 });
 
-
-document.getElementById('profileForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    fetch("{{ route('profile.updateInfo') }}", {
-        method: "POST",
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: formData
-    })
+document.getElementById('saveSiteImageBtn').addEventListener('click', function () {
+    const file = document.getElementById('modalSiteFileInput').files[0];
+    if (!file) return showToast('danger', 'Please select an image.');
+    const formData = new FormData();
+    formData.append('siteimage', file);
+    fetch("{{ route('site.image') }}", { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: formData })
     .then(res => res.json())
     .then(data => {
-        console.log("✅ Profile Update Response:", data);
-
         if (data.status) {
-            // Update displayed info
-            document.querySelector('.fs-3.fw-bold').textContent = formData.get('name');
-            document.querySelector('.text-muted.mb-2').textContent = formData.get('email');
-            document.querySelector('.text-body.mb-0').innerHTML =
-                `<i class="iconoir-phone fs-20 me-1 text-muted"></i>+91 ${formData.get('phone')}`;
-
+            document.getElementById('siteImagePreview').src = data.site_url;
+            document.getElementById('modalSiteImagePreview').src = data.site_url;
+            bootstrap.Modal.getInstance(document.getElementById('editSiteImageModal')).hide();
             showToast('success', data.message);
-        } else {
-            showToast('danger', data.message || "Failed to update profile.");
-        }
+        } else showToast('danger', data.message);
     })
-    .catch(err => {
-        console.error("❌ Fetch Error:", err);
-        showToast('danger', "Something went wrong!");
-    });
-});
-
-document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    fetch("{{ url('admin/change-password') }}", {
-        method: "POST",
-        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("🔐 Password Change Response:", data);
-        if (data.status) {
-            showToast('success', data.message);
-            this.reset();
-        } else {
-            showToast('danger', data.message || "Failed to update password.");
-        }
-    })
-    .catch(err => {
-        console.error("❌ Fetch Error:", err);
-        showToast('danger', "Something went wrong while changing password.");
-    });
+    .catch(() => showToast('danger', 'Something went wrong while uploading.'));
 });
 </script>
 
-
 <style>
-.profile-image-wrapper {
-    position: relative;
-    display: inline-block;
-}
-.profile-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border: 3px solid #fff;
-}
+.profile-image-wrapper { position: relative; display: inline-block; }
+.profile-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid #fff; }
 .edit-icon {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background-color: #0d6efd;
-    color: #fff;
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border: 2px solid #fff;
+    position: absolute; bottom: 0; right: 0;
+    background-color: #0d6efd; color: #fff;
+    border-radius: 50%; width: 34px; height: 34px;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer; border: 2px solid #fff;
     transition: all 0.2s ease;
 }
-.edit-icon:hover {
-    background-color: #0b5ed7;
-    transform: scale(1.05);
-}
+.edit-icon:hover { background-color: #0b5ed7; transform: scale(1.05); }
 @media (max-width: 767px) {
-    label.form-label {
-        text-align: left !important;
-        display: block;
-        margin-bottom: 0.4rem;
-    }
+    label.form-label { text-align: left !important; display: block; margin-bottom: 0.4rem; }
 }
 </style>

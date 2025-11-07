@@ -89,5 +89,6 @@ Route::prefix('admin')->middleware(['auth','verified'])->controller(SettingsCont
     Route::post('profile-pic','profileImage')->name('profile.pic');
     Route::post('/profile/update','profileInformation')->name('profile.updateInfo');
     Route::post('change-password','profilechangepassword')->name('profile.changePassword');
+    Route::post('site-image','siteImage')->name('site.image');
 
 });

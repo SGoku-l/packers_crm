@@ -3,12 +3,18 @@
             <!--start brand-->
             <div class="brand">
                 <a href="index.html" class="logo">
+                     @php
+                        use App\Models\SiteImage;
+                        $siteImage = SiteImage::find(1);
+                    @endphp
+
                     <span>
-                        <img src="assets/images/logo-sm.png" alt="logo-small" class="logo-sm">
+                        <img src="{{ $siteImage && $siteImage->site_image ? asset('uploads/site/' . $siteImage->site_image) : asset('assets/images/logo-sm.png') }}" alt="logo-small" class="logo-sm">
                     </span>
+
                     <span class="">
-                        <img src="assets/images/logo-light.png" alt="logo-large" class="logo-lg logo-light">
-                        <img src="assets/images/logo-dark.png" alt="logo-large" class="logo-lg logo-dark">
+                        <img src="{{ $siteImage && $siteImage->site_image ? asset('uploads/site/' . $siteImage->site_image) : asset('assets/images/logo-light.png') }}" alt="logo-large" class="logo-lg logo-light">
+                        <img src="{{ $siteImage && $siteImage->site_image ? asset('uploads/site/' . $siteImage->site_image) : asset('assets/images/logo-dark.png') }}" alt="logo-large" class="logo-lg logo-dark">
                     </span>
                 </a>
             </div>
