@@ -345,6 +345,29 @@ document.getElementById('saveSiteImageBtn').addEventListener('click', function (
     })
     .catch(() => showToast('danger', 'Something went wrong while uploading.'));
 });
+
+// Change Password AJAX
+document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch("{{ route('profile.changePassword') }}", {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status) {
+            showToast('success', data.message);
+            setTimeout(() => {
+                window.location.href = data.redirect || "{{ route('login') }}";
+            }, 2000);
+        } else {
+            showToast('danger', data.message);
+        }
+    })
+    .catch(() => showToast('danger', 'Something went wrong!'));
+});
 </script>
 
 <style>

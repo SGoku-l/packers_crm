@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class SettingsController extends Controller
 {
@@ -103,9 +104,13 @@ class SettingsController extends Controller
         $user->password = Hash::make($request->new_password);
         $user->save();
 
+        Auth::logout();
+        Session::flush();
+
         return response()->json([
             'status' => true,
-            'message' => 'New Password Updated Successfully'
+            'message' => 'New Password Updated Successfully. Please Login Again',
+            'redirect' => route('login')
         ]);
 
     }
