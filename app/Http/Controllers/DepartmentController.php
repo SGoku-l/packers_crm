@@ -187,6 +187,13 @@ class DepartmentController extends Controller
 
         $findrole = Department::find($request->adminRole);
 
+         if (!$findrole) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid department or role selection.'
+            ], 422);
+        }
+
         $admin =  User::create([
             'name' => $request->adminName,
             'email' => $request->adminEmail,
@@ -200,7 +207,6 @@ class DepartmentController extends Controller
         $admin->load(['role', 'modifiedByUser']);
 
         
-
         if($findrole){
             $role = Role::find($findrole->role_id);
             if($role){
@@ -212,7 +218,7 @@ class DepartmentController extends Controller
             'status' => true,
             'message' => 'Admin Created Successfully',
             'admin' => $admin
-        ]);
+        ],200);
 
     }
 
@@ -235,7 +241,7 @@ class DepartmentController extends Controller
         $request->validate([
             'adminName' => 'required|string|max:100',
             'adminEmail' => 'required|email|unique:users,email,' .$id,
-            'adminPhone' => 'required|numeric|unique:users,phone',
+            'adminPhone' => 'required|numeric|unique:users,phone,' . $id,
             'adminPassword' => 'min:6',
             'adminconformPassword' => 'min:6|same:adminPassword',
             'adminRole'=>'nullable'

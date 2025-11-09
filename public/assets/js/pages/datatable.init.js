@@ -1,7 +1,8 @@
-try{
-    new simpleDatatables.DataTable("#datatable_1",{searchable:!0,fixedHeight:!1}
+// try{
+//     new simpleDatatables.DataTable("#datatable_1",{searchable:!0,fixedHeight:!1}
 
-    )}catch(e){}try{
+//     )}catch(e){}
+    try{
         const b=new simpleDatatables.DataTable("#datatable_2");
         document.querySelector("button.csv").addEventListener("click",()=>{b.exportCSV({type:"csv",download:!0,lineDelimiter:
             "\n\n",columnDelimiter:";"})}),

@@ -37,7 +37,8 @@
         <script src="{{ asset('assets/js/app.js') }}"></script>
         <script src="{{ asset('assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
         <script src="{{ asset('assets/js/pages/datatable.init.js') }}"></script>
-    
+        <script src="{{ asset('assets/js/api/footer.js') }}"></script>
+
     </body>
     <!--end body-->
 </html>

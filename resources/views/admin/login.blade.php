@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
-
 <head>
     <meta charset="utf-8" />
     <title>Login Page</title>
@@ -46,21 +45,22 @@
                     </div>
                     <div class="card-body p-4">
 
-                        <!-- Single Form -->
-                        <form id="loginForm" method="post" action="{{ url('admin/login') }}">
+                        <!-- ===== Login Form ===== -->
+                        <form id="loginForm" method="POST" action="{{ url('admin/login') }}">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email"
-                                    placeholder="Enter your email">
+                                    placeholder="Enter your email" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="password" name="password"
-                                        placeholder="Enter password">
-                                    <span class="input-group-text toggle-password" onclick="togglePassword('password', this)">🙈</span>
+                                        placeholder="Enter password" required>
+                                    <span class="input-group-text toggle-password"
+                                        onclick="togglePassword('password', this)">🙈</span>
                                 </div>
                             </div>
 
@@ -69,7 +69,7 @@
                                     <input class="form-check-input" type="checkbox" id="rememberMe">
                                     <label class="form-check-label" for="rememberMe">Remember me</label>
                                 </div>
-                                <a href="auth-recover-pw.html" class="text-muted small">Forgot password?</a>
+                                <a href="#" class="text-muted small">Forgot password?</a>
                             </div>
 
                             <div class="d-grid">
@@ -78,7 +78,6 @@
                             </div>
                         </form>
 
-                        <!-- Messages -->
                         <div id="loginmessage" class="mt-3 text-center"></div>
 
                         <div class="text-center mt-4">
@@ -88,16 +87,13 @@
                             <h6 class="px-3 d-inline-block">Or Login With</h6>
                         </div>
                         <div class="d-flex justify-content-center gap-2 mt-2">
-                            <a href="#"
-                                class="d-flex justify-content-center align-items-center thumb-md bg-primary-subtle text-primary rounded-circle">
+                            <a href="#" class="d-flex justify-content-center align-items-center thumb-md bg-primary-subtle text-primary rounded-circle">
                                 <i class="fab fa-facebook"></i>
                             </a>
-                            <a href="#"
-                                class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle">
+                            <a href="#" class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle">
                                 <i class="fab fa-twitter"></i>
                             </a>
-                            <a href="#"
-                                class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
+                            <a href="#" class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
                                 <i class="fab fa-google"></i>
                             </a>
                         </div>
@@ -107,7 +103,14 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container position-absolute top-0 end-0 p-3"></div>
+
+    <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+
     <script>
+        // Toggle password visibility
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -118,11 +121,47 @@
                 icon.textContent = "🙈";
             }
         }
+
+        /* -----------------------------
+          Bootstrap Toast Helper
+        ------------------------------ */
+        function showToast(type, message) {
+            const container = document.querySelector('.toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type} fade mb-2`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="20" class="me-1">
+                    <h5 class="me-auto my-0">Mifty</h5>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            container.appendChild(toast);
+            const bootstrapToast = new bootstrap.Toast(toast, { delay: 4000, autohide: true });
+            bootstrapToast.show();
+        }
+
+        function createToastContainer() {
+            const div = document.createElement('div');
+            div.className = 'toast-container position-absolute top-0 end-0 p-3';
+            document.body.appendChild(div);
+            return div;
+        }
+
+        // Show Laravel validation or session errors via toast
+        @if ($errors->any())
+            showToast('danger', "{{ $errors->first() }}");
+        @endif
+
+        @if (session('error'))
+            showToast('danger', "{{ session('error') }}");
+        @endif
+        
     </script>
-    
-     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-     <script src="{{ asset('assets/js/app.js') }}"></script>
-    <!-- <script>const api_url = "{{ config('app.api_url') }}";</script>
-    <script src="{{ asset('api-js/login.js') }}"></script> -->
 </body>
 </html>

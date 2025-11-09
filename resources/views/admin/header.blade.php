@@ -5,15 +5,26 @@
         
 
         <meta charset="utf-8" />
-                <title>Admin & Dashboard Template</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-                <meta content="" name="author" />
-                <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Admin & Dashboard Template</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-                <!-- App favicon -->
-                <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
+
+        <script>
+            (function() {
+            try {
+                const saved = localStorage.getItem('data-bs-theme') || 'light';
+                document.documentElement.setAttribute('data-bs-theme', saved);
+            } catch (e) {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            }
+            })();
+        </script>
   
          <!-- App css -->
          <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" type="text/css">
@@ -40,7 +51,11 @@
                             </button>
                         </li> 
                         <li class="mx-2 welcome-text">
-                            <h5 class="mb-0 fw-semibold text-truncate">Good Morning, {{ ucfirst(Auth::user()->name)  }}!</h5>
+                            @php
+                                $hour = now()->format('H');
+                                $greeting = $hour < 12 ? 'Good Morning' : ($hour < 17 ? 'Good Afternoon' : 'Good Evening');
+                            @endphp
+                            <h5 class="mb-0 fw-semibold text-truncate">{{ $greeting }}, {{ ucfirst(Auth::user()->name)  }}!</h5>
                             <!-- <h6 class="mb-0 fw-normal text-muted text-truncate fs-14">Here's your overview this week.</h6> -->
                         </li>                   
                     </ul>
